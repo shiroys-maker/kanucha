@@ -90,23 +90,26 @@
 
     // 受診日を本日に設定
     const today = new Date().toISOString().split('T')[0];
-    form["受診日"].value = today;
+    if (!form["受診日"].value) form["受診日"].value = today;
 
-    // 生年月日から年齢自動計算
-    form["生年月日"].addEventListener("change", () => {
-      const birth = new Date(form["生年月日"].value);
-      if (!isNaN(birth)) {
-        const today = new Date();
-        let age = today.getFullYear() - birth.getFullYear();
-        const m = today.getMonth() - birth.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
+    // 生年月日から年齢を自動計算
+    const birthInput = form["生年月日"];
+    const ageInput = form["年齢"];
+
+    birthInput.addEventListener("change", () => {
+      const birth = new Date(birthInput.value);
+      if (!isNaN(birth.getTime())) {
+        const now = new Date();
+        let age = now.getFullYear() - birth.getFullYear();
+        const m = now.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) {
           age--;
         }
-        form["年齢"].value = age;
+        ageInput.value = age;
       }
     });
 
-    // 編集モード: ID付きで呼び出されたとき
+    // 編集モード：データを取得
     if (id) {
       fetch(`https://us-central1-kanucha-api.cloudfunctions.net/getPatientById?id=${id}`)
         .then(res => res.json())
@@ -115,10 +118,11 @@
           for (const name in data) {
             if (form[name]) form[name].value = data[name];
           }
+          birthInput.dispatchEvent(new Event('change')); // 年齢再計算
         });
     }
 
-    // 更新ボタンでデータ送信
+    // 保存処理
     form.addEventListener("submit", e => {
       e.preventDefault();
       const obj = Object.fromEntries(new FormData(form));
