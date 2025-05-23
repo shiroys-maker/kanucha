@@ -88,11 +88,11 @@
     const params = new URLSearchParams(location.search);
     const id = params.get("id");
 
-    // 自動で受診日を本日に設定
+    // 受診日を本日に設定
     const today = new Date().toISOString().split('T')[0];
     form["受診日"].value = today;
 
-    // 生年月日から年齢を自動計算
+    // 生年月日から年齢自動計算
     form["生年月日"].addEventListener("change", () => {
       const birth = new Date(form["生年月日"].value);
       if (!isNaN(birth)) {
@@ -106,6 +106,7 @@
       }
     });
 
+    // 編集モード: ID付きで呼び出されたとき
     if (id) {
       fetch(`https://us-central1-kanucha-api.cloudfunctions.net/getPatientById?id=${id}`)
         .then(res => res.json())
@@ -117,6 +118,7 @@
         });
     }
 
+    // 更新ボタンでデータ送信
     form.addEventListener("submit", e => {
       e.preventDefault();
       const obj = Object.fromEntries(new FormData(form));
