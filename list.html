@@ -1,36 +1,16 @@
+<!-- list.html -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <title>患者一覧</title>
   <style>
-    body {
-      font-family: sans-serif;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    button {
-      margin: 10px 0;
-      padding: 6px 12px;
-      font-size: 14px;
-    }
-    .action-btn {
-      margin-left: 8px;
-      color: red;
-      cursor: pointer;
-      text-decoration: underline;
-    }
+    body { font-family: sans-serif; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    button { margin: 10px 0; padding: 6px 12px; font-size: 14px; }
+    .action-btn { margin-left: 8px; color: red; cursor: pointer; text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -50,8 +30,10 @@
   </table>
 
   <script>
+    const apiBase = "https://us-central1-kanucha-api.cloudfunctions.net";
+
     function loadPatients() {
-      fetch('https://us-central1-kanucha-api.cloudfunctions.net/getPatients')
+      fetch(`${apiBase}/getPatients`)
         .then(res => res.json())
         .then(data => {
           const tbody = document.querySelector('#patientTable tbody');
@@ -68,26 +50,19 @@
             tbody.appendChild(tr);
           });
         })
-        .catch(err => {
-          console.error(err);
-          alert("一覧の取得に失敗しました");
-        });
+        .catch(err => alert("一覧取得失敗: " + err.message));
     }
 
     function deletePatient(id) {
       if (!confirm(`ID ${id} を削除しますか？`)) return;
-      fetch(`https://us-central1-kanucha-api.cloudfunctions.net/deletePatient?id=${id}`, {
-        method: 'DELETE'
+      fetch(`${apiBase}/delete`, {
+        method: 'POST',
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id })
       })
-      .then(res => {
-        if (!res.ok) throw new Error("削除失敗");
-        alert("削除しました");
-        loadPatients();
-      })
-      .catch(err => {
-        console.error(err);
-        alert("削除に失敗しました");
-      });
+        .then(res => res.json())
+        .then(() => loadPatients())
+        .catch(err => alert("削除失敗: " + err.message));
     }
 
     loadPatients();

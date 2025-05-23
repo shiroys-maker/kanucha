@@ -4,37 +4,17 @@
   <meta charset="UTF-8">
   <title>患者フォーム</title>
   <style>
-    body {
-      font-family: sans-serif;
-    }
-    .row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 6px;
-    }
-    input[type="text"],
-    input[type="date"],
-    select,
-    textarea {
+    body { font-family: sans-serif; }
+    .row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    input[type="text"], input[type="date"], select, textarea {
       padding: 4px;
       font-size: 14px;
     }
-    textarea {
-      width: 100%;
-    }
-    .short-input {
-      width: 100px;
-    }
-    .half-height {
-      height: 40px;
-    }
-    .normal-height {
-      height: 80px;
-    }
-    .double-height {
-      height: 120px;
-    }
+    textarea { width: 100%; }
+    .short-input { width: 100px; }
+    .half-height { height: 40px; }
+    .normal-height { height: 80px; }
+    .double-height { height: 120px; }
   </style>
 </head>
 <body>
@@ -87,56 +67,48 @@
     const form = document.forms[0];
     const params = new URLSearchParams(location.search);
     const id = params.get("id");
+    const apiBase = "https://us-central1-kanucha-api.cloudfunctions.net";
 
-    // 受診日を本日に設定
+    // 今日の日付を初期値
     const today = new Date().toISOString().split('T')[0];
     if (!form["受診日"].value) form["受診日"].value = today;
 
-    // 生年月日から年齢を自動計算
     const birthInput = form["生年月日"];
     const ageInput = form["年齢"];
-
     birthInput.addEventListener("change", () => {
       const birth = new Date(birthInput.value);
       if (!isNaN(birth.getTime())) {
         const now = new Date();
         let age = now.getFullYear() - birth.getFullYear();
-        const m = now.getMonth() - birth.getMonth();
-        if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) {
-          age--;
-        }
+        if (now.getMonth() < birth.getMonth() || (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())) age--;
         ageInput.value = age;
       }
     });
 
-    // 編集モード：データを取得
     if (id) {
-      fetch(`https://us-central1-kanucha-api.cloudfunctions.net/getPatientById?id=${id}`)
+      fetch(`${apiBase}/getPatientById?id=${id}`)
         .then(res => res.json())
         .then(data => {
-          if (!data) return;
           for (const name in data) {
             if (form[name]) form[name].value = data[name];
           }
-          birthInput.dispatchEvent(new Event('change')); // 年齢再計算
+          birthInput.dispatchEvent(new Event('change'));
         });
     }
 
-    // 保存処理
     form.addEventListener("submit", e => {
       e.preventDefault();
       const obj = Object.fromEntries(new FormData(form));
-      fetch("https://us-central1-kanucha-api.cloudfunctions.net/addPatient", {
+      fetch(`${apiBase}/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(obj),
+        body: JSON.stringify(obj)
       })
-        .then(res => res.json())
-        .then(() => {
-          alert("保存しました");
-          location.href = "list.html";
-        })
-        .catch(err => alert("送信に失敗しました: " + err.message));
+      .then(() => {
+        alert("保存しました");
+        location.href = "list.html";
+      })
+      .catch(err => alert("送信失敗: " + err.message));
     });
   </script>
 </body>
