@@ -29,16 +29,17 @@
     .half-height {
       height: 40px;
     }
-    .double-height {
-      height: 120px;
-    }
     .normal-height {
       height: 80px;
+    }
+    .double-height {
+      height: 120px;
     }
   </style>
 </head>
 <body>
   <h2>患者情報</h2>
+  <button onclick="location.href='list.html'">一覧に戻る</button>
   <form id="form">
     <div class="row">
       ID: <input name="id" required>
@@ -106,12 +107,14 @@
     });
 
     if (id) {
-      google.script.run.withSuccessHandler(data => {
-        if (!data) return;
-        for (const name in data) {
-          if (form[name]) form[name].value = data[name];
-        }
-      }).getRecordById(id);
+      fetch(`https://us-central1-kanucha-api.cloudfunctions.net/getPatientById?id=${id}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data) return;
+          for (const name in data) {
+            if (form[name]) form[name].value = data[name];
+          }
+        });
     }
 
     form.addEventListener("submit", e => {
@@ -125,7 +128,7 @@
         .then(res => res.json())
         .then(() => {
           alert("保存しました");
-          location.href = "?page=list";
+          location.href = "list.html";
         })
         .catch(err => alert("送信に失敗しました: " + err.message));
     });
