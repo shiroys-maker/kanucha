@@ -3,26 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <title>患者情報フォーム</title>
+  <style>
+    .row { display: flex; gap: 10px; margin-bottom: 10px; }
+    .column { display: flex; flex-direction: column; }
+    textarea { height: 4em; width: 100%; }
+  </style>
 </head>
 <body>
-  <h2>患者情報フォーム</h2>
-  <form id="patientForm">
-    ID: <input type="text" name="id" required><br>
-    名前: <input type="text" name="名前"><br>
-    生年月日: <input type="date" name="生年月日"><br>
-    性別:
-    <select name="性別">
-      <option value="男性">男性</option>
-      <option value="女性">女性</option>
-    </select><br>
-    受診日: <input type="date" name="受診日"><br>
-    年齢: <input type="number" name="年齢"><br>
+  <h2>患者情報</h2>
+
+  <form id="form">
+    <div class="row">
+      <div class="column">
+        ID: <input name="id" required>
+      </div>
+      <div class="column">
+        名前: <input name="名前" required>
+      </div>
+      <div class="column">
+        生年月日: <input name="生年月日" type="date" required>
+      </div>
+      <div class="column">
+        性別:
+        <select name="性別">
+          <option value="男性">男性</option>
+          <option value="女性">女性</option>
+        </select>
+      </div>
+      <div class="column">
+        年齢: <input name="年齢" readonly>
+      </div>
+    </div>
+
+    <div class="column">
+      受診日: <input name="受診日" type="date" id="visitDate">
+    </div>
 
     <h3>診療履歴: 看護師</h3>
-    血圧: <input type="text" name="血圧"><br>
-    脈: <input type="text" name="脈"><br>
-    体温: <input type="text" name="体温"><br>
-    SAT: <input type="text" name="SAT"><br>
+    <div class="row">
+      <div class="column">
+        血圧: <input name="血圧">
+      </div>
+      <div class="column">
+        脈: <input name="脈">
+      </div>
+      <div class="column">
+        体温: <input name="体温">
+      </div>
+      <div class="column">
+        SAT: <input name="SAT">
+      </div>
+    </div>
+
     来院の目的: <textarea name="来院の目的"></textarea><br>
     既往歴: <textarea name="既往歴"></textarea><br>
     内服薬: <textarea name="内服薬"></textarea><br>
@@ -38,34 +70,22 @@
   </form>
 
   <script>
-    const form = document.getElementById("patientForm");
-
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const formData = new FormData(form);
-      const data = Object.fromEntries(formData.entries());
-
-      try {
-        const res = await fetch("https://us-central1-kanucha-api.cloudfunctions.net/addPatient", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(data)
-        });
-
-        const result = await res.json();
-        if (result.result === "success") {
-          alert("送信に成功しました！");
-          form.reset();
-        } else {
-          alert("送信に失敗しました：" + (result.error || "不明なエラー"));
-        }
-      } catch (err) {
-        alert("通信エラー：" + err.message);
+    // 年齢自動計算
+    document.querySelector('[name="生年月日"]').addEventListener('change', function() {
+      const birth = new Date(this.value);
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      if (
+        today.getMonth() < birth.getMonth() ||
+        (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())
+      ) {
+        age--;
       }
+      document.querySelector('[name="年齢"]').value = age;
     });
+
+    // 受診日を本日に設定（編集可）
+    document.getElementById('visitDate').valueAsDate = new Date();
   </script>
 </body>
 </html>
