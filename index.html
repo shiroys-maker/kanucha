@@ -2,68 +2,70 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>患者フォーム</title>
+  <title>患者情報フォーム</title>
 </head>
 <body>
-  <h2>新規登録</h2>
-  <form id="form">
-    ID: <input name="id" required><br>
-    名前: <input name="name"><br>
-    生年月日: <input name="birthdate" type="date"><br>
-    性別: <select name="gender"><option>男性</option><option>女性</option></select><br>
-    受診日: <input name="visit" type="date"><br>
-    血圧: <input name="bp"><br>
-    脈: <input name="pulse"><br>
-    体温: <input name="temp"><br>
-    SAT: <input name="sat"><br>
-    来院の目的: <textarea name="purpose"></textarea><br>
-    既往歴: <textarea name="history"></textarea><br>
-    内服薬: <textarea name="medication"></textarea><br>
-    アレルギー: <textarea name="allergy"></textarea><br>
-    診察所見: <textarea name="findings"></textarea><br>
-    診断名: <textarea name="diagnosis"></textarea><br>
-    投薬内容: <textarea name="prescription"></textarea><br>
-    備考: <textarea name="remarks"></textarea><br>
-    <button type="submit">送信</button>
+  <h2>患者情報フォーム</h2>
+  <form id="patientForm">
+    ID: <input type="text" name="id" required><br>
+    名前: <input type="text" name="名前"><br>
+    生年月日: <input type="date" name="生年月日"><br>
+    性別:
+    <select name="性別">
+      <option value="男性">男性</option>
+      <option value="女性">女性</option>
+    </select><br>
+    受診日: <input type="date" name="受診日"><br>
+    年齢: <input type="number" name="年齢"><br>
+
+    <h3>診療履歴: 看護師</h3>
+    血圧: <input type="text" name="血圧"><br>
+    脈: <input type="text" name="脈"><br>
+    体温: <input type="text" name="体温"><br>
+    SAT: <input type="text" name="SAT"><br>
+    来院の目的: <textarea name="来院の目的"></textarea><br>
+    既往歴: <textarea name="既往歴"></textarea><br>
+    内服薬: <textarea name="内服薬"></textarea><br>
+    アレルギー: <textarea name="アレルギー"></textarea><br>
+
+    <h3>診療履歴: 医師</h3>
+    診察所見: <textarea name="診察所見"></textarea><br>
+    診断名: <textarea name="診断名"></textarea><br>
+    投薬内容: <textarea name="投薬内容"></textarea><br>
+    備考: <textarea name="備考"></textarea><br>
+
+    <button type="submit">更新</button>
   </form>
 
-  <hr>
-  <h2>患者一覧</h2>
-  <ul id="patientList"></ul>
-
   <script>
-    const apiUrl = "https://script.google.com/macros/s/AKfycbwkq_E0g98D9QAd4y0NiTfN2k3ujgQMS0LE6IitC7uQdqhbJIXxTd2lbweaNy6Iy9iSzw/exec"; // ← あなたのGASのexec URLに置き換え
+    const form = document.getElementById("patientForm");
 
-    document.getElementById("form").addEventListener("submit", async (e) => {
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const data = Object.fromEntries(new FormData(e.target).entries());
 
-      const res = await fetch(apiUrl, {
-        method: "POST",
-        body: JSON.stringify(data)
-      });
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
 
-      const json = await res.json();
-      if (json.result === "success") {
-        alert("登録完了");
-        e.target.reset();
-        loadPatients();
+      try {
+        const res = await fetch("https://us-central1-kanucha-api.cloudfunctions.net/addPatient", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        if (result.result === "success") {
+          alert("送信に成功しました！");
+          form.reset();
+        } else {
+          alert("送信に失敗しました：" + (result.error || "不明なエラー"));
+        }
+      } catch (err) {
+        alert("通信エラー：" + err.message);
       }
     });
-
-    async function loadPatients() {
-      const res = await fetch(apiUrl);
-      const patients = await res.json();
-      const list = document.getElementById("patientList");
-      list.innerHTML = "";
-      patients.forEach(p => {
-        const li = document.createElement("li");
-        li.textContent = `${p.id} - ${p.name} (${p.age}歳, ${p.visit})`;
-        list.appendChild(li);
-      });
-    }
-
-    loadPatients();
   </script>
 </body>
 </html>
