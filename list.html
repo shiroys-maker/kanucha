@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <title>患者一覧</title>
   <style>
-    body { font-family: sans-serif; padding: 20px; }
+    body { font-family: sans-serif; }
     table { border-collapse: collapse; width: 100%; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
     th { background-color: #f2f2f2; }
     button { margin: 10px 0; padding: 6px 12px; font-size: 14px; }
-    .delete-btn { color: red; cursor: pointer; text-decoration: underline; }
+    .action-btn { margin-left: 8px; color: red; cursor: pointer; text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -21,6 +21,7 @@
         <th>ID</th>
         <th>名前</th>
         <th>性別</th>
+        <th>年齢</th>
         <th>受診日</th>
         <th>操作</th>
       </tr>
@@ -29,53 +30,52 @@
   </table>
 
   <script>
-    const tbody = document.querySelector("tbody");
+  const tbody = document.querySelector("tbody");
 
-    function loadPatients() {
-      fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "get" })
-      })
-      .then(res => res.json())
-      .then(data => {
-        tbody.innerHTML = "";
-        for (const row of data) {
-          const tr = document.createElement("tr");
-          tr.innerHTML = `
-            <td>${row.id || ""}</td>
-            <td>${row["名前"] || ""}</td>
-            <td>${row["性別"] || ""}</td>
-            <td>${row["受診日"] || ""}</td>
-            <td>
-              <a href="index.html?id=${row.id}">編集</a> |
-              <span class="delete-btn" onclick="deletePatient('${row.id}')">削除</span>
-            </td>
-          `;
-          tbody.appendChild(tr);
-        }
-      })
-      .catch(() => {
-        tbody.innerHTML = "<tr><td colspan='5'>読み込みエラー</td></tr>";
-      });
-    }
+  function loadPatients() {
+    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "get" })
+    })
+    .then(res => res.json())
+    .then(data => {
+      tbody.innerHTML = "";
+      for (const row of data) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.id}</td>
+          <td>${row.名前}</td>
+          <td>${row.性別}</td>
+          <td>${row.年齢}</td>
+          <td>${row.受診日}</td>
+          <td>
+            <a href="index.html?id=${row.id}">編集</a> |
+            <a href="#" onclick="deletePatient('${row.id}')">削除</a>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+    });
+  }
 
-    function deletePatient(id) {
-      if (!confirm("本当に削除しますか？")) return;
-      fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "delete", id })
-      })
-      .then(res => res.json())
-      .then(() => {
-        alert("削除しました");
-        loadPatients();
-      })
-      .catch(() => alert("削除に失敗しました"));
-    }
+  function deletePatient(id) {
+    if (!confirm("本当に削除しますか？")) return;
 
-    loadPatients();
+    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "delete", id })
+    })
+    .then(res => res.json())
+    .then(() => {
+      alert("削除しました");
+      loadPatients();
+    })
+    .catch(() => alert("削除に失敗しました"));
+  }
+
+  loadPatients();
   </script>
 </body>
 </html>
