@@ -16,6 +16,7 @@
 </head>
 <body>
   <h2>患者情報</h2>
+  <button onclick="location.href='list.html'">一覧に戻る</button>
   <form id="form">
     <div class="row">
       ID: <input name="id" required>
@@ -72,15 +73,10 @@
 
     form["生年月日"].addEventListener("change", calculateAge);
     form["受診日"].addEventListener("change", calculateAge);
+    form["受診日"].value = new Date().toISOString().split("T")[0];
 
-    // デフォルト受診日を今日に
-    const today = new Date().toISOString().split("T")[0];
-    form["受診日"].value = today;
-
-    // 編集時データ取得
     const params = new URLSearchParams(location.search);
     const id = params.get("id");
-
     if (id) {
       fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
         method: "POST",
@@ -96,7 +92,6 @@
       });
     }
 
-    // 送信処理
     form.addEventListener("submit", e => {
       e.preventDefault();
       const obj = Object.fromEntries(new FormData(form));
