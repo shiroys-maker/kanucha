@@ -98,6 +98,7 @@
     form.addEventListener("submit", e => {
       e.preventDefault();
       const obj = Object.fromEntries(new FormData(form));
+      obj["年齢"] = form["年齢"].value;
       obj.action = "add";
       fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
         method: "POST",
