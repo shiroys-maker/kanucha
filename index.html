@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>患者フォーム</title>
+  <style>
+    
+  body {
+    font-family: 'Helvetica Neue', sans-serif;
+    background: #eef5f9;
+    padding: 24px;
+    color: #333;
+  }
+
+  .card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    max-width: 900px;
+    margin: auto;
+  }
+
+  button, a.button {
+    background: #007acc;
+    color: white;
+    padding: 8px 16px;
+    font-size: 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    margin: 5px;
+  }
+
+  button:hover, a.button:hover {
+    background: #005fa3;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+  }
+
+  th {
+    background: #d9ecf7;
+  }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .short-input { width: 100px; }
+    textarea { width: 100%; }
+    .double-height { height: 120px; }
+  </style>
+</head>
+<body>
+
+  <script>
+    if (localStorage.getItem("auth") !== "nirai43929") {
+      location.href = "login.html";
+    }
+  </script>
+
+  <div class="card">
+    <h2>患者情報</h2>
+    <form id="form">
+      <div class="row">
+        ID: <input name="id" required>
+        名前: <input name="名前">
+        生年月日: <input name="生年月日" type="date">
+        性別:
+        <select name="性別"><option>男性</option><option>女性</option></select>
+        年齢: <input name="年齢" class="short-input" disabled>
+      </div>
+
+      <div class="row">
+        受診日: <input name="受診日" type="date" class="short-input">
+      </div>
+
+      <div class="row">
+        血圧: <input name="血圧" class="short-input">
+        脈: <input name="脈" class="short-input">
+        体温: <input name="体温" class="short-input">
+        SAT: <input name="SAT" class="short-input">
+      </div>
+
+      <div>来院の目的: <textarea name="来院の目的" class="double-height"></textarea></div>
+      <div>既往歴: <textarea name="既往歴" class="normal-height"></textarea></div>
+      <div>内服薬: <textarea name="内服薬" class="normal-height"></textarea></div>
+      <div>アレルギー: <textarea name="アレルギー" class="normal-height"></textarea></div>
+      <div>診察所見: <textarea name="診察所見" class="double-height"></textarea></div>
+      <div>診断名: <textarea name="診断名" class="normal-height"></textarea></div>
+      <div>投薬内容: <textarea name="投薬内容" class="double-height"></textarea></div>
+      <div>備考: <textarea name="備考" class="normal-height"></textarea></div>
+
+      <div class="row">
+        <button type="submit">更新</button>
+        <button type="button" onclick="location.href='list.html'">一覧に戻る</button>
+        <a id="printLink" class="button" href="#" target="_blank">印刷</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const form = document.forms[0];
+    const params = new URLSearchParams(location.search);
+    const id = params.get("id");
+
+    if (id) {
+      fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ auth: localStorage.getItem('auth') }, { action: "getById", id })
+      })
+      ))
+    .then(res => res.json())
+      .then(data => {
+        for (const name in data) {
+          if (form[name]) form[name].value = data[name];
+        }
+        form["年齢"].value = calcAge(data["生年月日"]);
+        document.getElementById("printLink").href = `print-from-api.html?id=${data.id}`;
+      });
+    }
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const obj = Object.fromEntries(new FormData(form));
+      fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(Object.assign({ auth: localStorage.getItem('auth') }, { action: "add", ...obj })
+      }).then(() => {
+        alert("保存しました");
+        location.href = "list.html";
+      });
+    });
+
+    const dateInput = form["受診日"];
+    if (!dateInput.value) {
+      const today = new Date().toISOString().split("T")[0];
+      dateInput.value = today;
+    }
+
+    function calcAge(birthStr) {
+      if (!birthStr) return '';
+      const birth = new Date(birthStr);
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      if (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      return age;
+    }
+
+    form["生年月日"].addEventListener("change", () => {
+      form["年齢"].value = calcAge(form["生年月日"].value);
+    });
+  </script>
+</body>
+</html>
