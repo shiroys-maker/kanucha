@@ -58,6 +58,15 @@
       max-width: 900px;
       margin: auto;
     }
+    .delete-btn {
+      color: red;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+      margin-left: 8px;
+    }
   </style>
 </head>
 <body>
@@ -101,11 +110,27 @@
             <td>${row.受診日}</td>
             <td>
               <a class="button" href="index.html?id=${row.id}">編集</a>
+              <button class="delete-btn" onclick="deletePatient('${row.id}')">削除</button>
             </td>
           `;
           tbody.appendChild(tr);
         }
       });
+    }
+
+    function deletePatient(id) {
+      if (!confirm("本当に削除しますか？")) return;
+      fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete", id })
+      })
+      .then(res => res.json())
+      .then(() => {
+        alert("削除しました");
+        loadPatients();
+      })
+      .catch(() => alert("削除に失敗しました"));
     }
 
     loadPatients();
