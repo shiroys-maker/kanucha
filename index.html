@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -67,9 +68,8 @@
     const form = document.forms[0];
     const params = new URLSearchParams(location.search);
     const id = params.get("id");
-    const apiBase = "https://us-central1-kanucha-api.cloudfunctions.net";
+    const API = "https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi";
 
-    // 今日の日付を初期値
     const today = new Date().toISOString().split('T')[0];
     if (!form["受診日"].value) form["受診日"].value = today;
 
@@ -86,7 +86,7 @@
     });
 
     if (id) {
-      fetch(`${apiBase}/getPatientById?id=${id}`)
+      fetch(`${API}/get?id=${id}`)
         .then(res => res.json())
         .then(data => {
           for (const name in data) {
@@ -99,7 +99,7 @@
     form.addEventListener("submit", e => {
       e.preventDefault();
       const obj = Object.fromEntries(new FormData(form));
-      fetch(`${apiBase}/add`, {
+      fetch(`${API}/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(obj)

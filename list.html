@@ -30,10 +30,10 @@
   </table>
 
   <script>
-    const apiBase = "https://us-central1-kanucha-api.cloudfunctions.net";
+    const API = "https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi";
 
     function loadPatients() {
-      fetch(`${apiBase}/getPatients`)
+      fetch(`${API}/list`)
         .then(res => res.json())
         .then(data => {
           const tbody = document.querySelector('#patientTable tbody');
@@ -55,7 +55,7 @@
 
     function deletePatient(id) {
       if (!confirm(`ID ${id} を削除しますか？`)) return;
-      fetch(`${apiBase}/delete`, {
+      fetch(`${API}/delete`, {
         method: 'POST',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id })
