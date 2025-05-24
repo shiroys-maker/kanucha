@@ -118,6 +118,13 @@
   </style>
 </head>
 <body>
+
+  <script>
+    if (localStorage.getItem("auth") !== "kanucha43929") {
+      location.href = "login.html";
+    }
+  </script>
+
   <div class="buttons">
     <button onclick="window.print()">印刷</button>
     <button id="backBtn">戻る</button>
