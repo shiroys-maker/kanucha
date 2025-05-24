@@ -142,7 +142,7 @@
         <p>備考:<br>${get("備考")}</p>
       `;
       document.getElementById("printContent").innerHTML = html;
-      window.print();
+      setTimeout(() => { window.print(); }, 100);
     }
   </script>
 </body>
