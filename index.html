@@ -5,16 +5,15 @@
   <meta charset="UTF-8">
   <title>患者情報フォーム＋印刷</title>
   <style>
-    body { font-family: sans-serif; }
-    .row { margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 12px; }
+    body { font-family: sans-serif; padding: 16px; }
+    .row { margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
     input, select, textarea { font-size: 14px; padding: 4px; }
-    input:not(.short-input), select:not(.short-input), textarea:not(.short-input) {
-      width: 200px;
-    }
-    .short-input { width: 80px; }
+    .short-input { width: 60px; }
+    .medium-input { width: 120px; }
+    .long-input { width: 220px; }
     .half-height { height: 40px; }
-    .normal-height { height: 80px; }
-    .double-height { height: 120px; }
+    .normal-height { height: 80px; width: 100%; }
+    .double-height { height: 120px; width: 100%; }
     .print-only { display: none; }
     @media print {
       body * { display: none !important; }
@@ -28,14 +27,18 @@
 
   <form id="form">
     <div class="row">
-      ID: <input name="id" required>
-      名前: <input name="名前">
-      生年月日: <input name="生年月日" type="date">
-      性別: <select name="性別"><option>男性</option><option>女性</option></select>
+      ID: <input name="id" class="medium-input" required>
+      名前: <input name="名前" class="long-input">
+      生年月日: <input name="生年月日" type="date" class="medium-input">
+      性別: 
+      <select name="性別" class="short-input">
+        <option>男性</option>
+        <option>女性</option>
+      </select>
       年齢: <input name="年齢" class="short-input" readonly>
     </div>
     <div class="row">
-      受診日: <input name="受診日" type="date">
+      受診日: <input name="受診日" type="date" class="medium-input">
     </div>
 
     <h3>診療履歴: 看護師</h3>
@@ -46,25 +49,28 @@
       SAT: <input name="SAT" class="short-input">
     </div>
     <div>
-      来院の目的: <textarea name="来院の目的" class="double-height"></textarea><br>
-      既往歴: <textarea name="既往歴" class="normal-height"></textarea><br>
-      内服薬: <textarea name="内服薬" class="normal-height"></textarea><br>
-      アレルギー: <textarea name="アレルギー" class="half-height"></textarea><br>
+      来院の目的:<br><textarea name="来院の目的" class="double-height"></textarea><br>
+      既往歴:<br><textarea name="既往歴" class="normal-height"></textarea><br>
+      内服薬:<br><textarea name="内服薬" class="normal-height"></textarea><br>
+      アレルギー:<br><textarea name="アレルギー" class="half-height" style="width:100%;"></textarea><br>
     </div>
 
     <h3>診療履歴: 医師</h3>
     <div>
-      診察所見: <textarea name="診察所見" class="double-height"></textarea><br>
-      診断名: <textarea name="診断名" class="half-height"></textarea><br>
-      投薬内容: <textarea name="投薬内容" class="double-height"></textarea><br>
-      備考: <textarea name="備考" class="half-height"></textarea><br>
+      診察所見:<br><textarea name="診察所見" class="double-height"></textarea><br>
+      診断名:<br><textarea name="診断名" class="half-height" style="width:100%;"></textarea><br>
+      投薬内容:<br><textarea name="投薬内容" class="double-height"></textarea><br>
+      備考:<br><textarea name="備考" class="half-height" style="width:100%;"></textarea><br>
     </div>
 
     <button type="submit">更新</button>
     <button type="button" onclick="printFormatted()">印刷</button>
   </form>
 
-  <div class="print-only" id="printArea"></div>
+  <div class="print-only" id="printArea">
+    <h2>患者記録</h2>
+    <div id="printContent"></div>
+  </div>
 
   <script>
     const form = document.forms[0];
@@ -113,30 +119,29 @@
 
     function printFormatted() {
       const f = form;
-      const getVal = name => f[name] ? f[name].value : "";
+      const get = name => f[name] ? f[name].value : "";
       const html = `
-        <h2>患者記録</h2>
-        <p><strong>ID:</strong> ${getVal("id")}</p>
-        <p><strong>名前:</strong> ${getVal("名前")}</p>
-        <p><strong>生年月日:</strong> ${getVal("生年月日")}</p>
-        <p><strong>性別:</strong> ${getVal("性別")}</p>
-        <p><strong>年齢:</strong> ${getVal("年齢")}</p>
-        <p><strong>受診日:</strong> ${getVal("受診日")}</p>
+        <p><strong>ID:</strong> ${get("id")}</p>
+        <p><strong>名前:</strong> ${get("名前")}</p>
+        <p><strong>生年月日:</strong> ${get("生年月日")}</p>
+        <p><strong>性別:</strong> ${get("性別")}</p>
+        <p><strong>年齢:</strong> ${get("年齢")}</p>
+        <p><strong>受診日:</strong> ${get("受診日")}</p>
         <hr>
         <h3>診療履歴（看護師）</h3>
-        <p><strong>血圧:</strong> ${getVal("血圧")}　<strong>脈:</strong> ${getVal("脈")}　<strong>体温:</strong> ${getVal("体温")}　<strong>SAT:</strong> ${getVal("SAT")}</p>
-        <p><strong>来院の目的:</strong><br>${getVal("来院の目的")}</p>
-        <p><strong>既往歴:</strong><br>${getVal("既往歴")}</p>
-        <p><strong>内服薬:</strong><br>${getVal("内服薬")}</p>
-        <p><strong>アレルギー:</strong><br>${getVal("アレルギー")}</p>
+        <p>血圧: ${get("血圧")}　脈: ${get("脈")}　体温: ${get("体温")}　SAT: ${get("SAT")}</p>
+        <p>来院の目的:<br>${get("来院の目的")}</p>
+        <p>既往歴:<br>${get("既往歴")}</p>
+        <p>内服薬:<br>${get("内服薬")}</p>
+        <p>アレルギー:<br>${get("アレルギー")}</p>
         <hr>
         <h3>診療履歴（医師）</h3>
-        <p><strong>診察所見:</strong><br>${getVal("診察所見")}</p>
-        <p><strong>診断名:</strong><br>${getVal("診断名")}</p>
-        <p><strong>投薬内容:</strong><br>${getVal("投薬内容")}</p>
-        <p><strong>備考:</strong><br>${getVal("備考")}</p>
+        <p>診察所見:<br>${get("診察所見")}</p>
+        <p>診断名:<br>${get("診断名")}</p>
+        <p>投薬内容:<br>${get("投薬内容")}</p>
+        <p>備考:<br>${get("備考")}</p>
       `;
-      document.getElementById("printArea").innerHTML = html;
+      document.getElementById("printContent").innerHTML = html;
       window.print();
     }
   </script>
