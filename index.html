@@ -122,9 +122,10 @@
       fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "getById", id })
+        body: JSON.stringify(Object.assign({ auth: localStorage.getItem('auth') }, { action: "getById", id })
       })
-      .then(res => res.json())
+      ))
+    .then(res => res.json())
       .then(data => {
         for (const name in data) {
           if (form[name]) form[name].value = data[name];
@@ -140,7 +141,7 @@
       fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "add", ...obj })
+        body: JSON.stringify(Object.assign({ auth: localStorage.getItem('auth') }, { action: "add", ...obj })
       }).then(() => {
         alert("保存しました");
         location.href = "list.html";

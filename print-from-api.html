@@ -202,8 +202,9 @@
     fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "getById", id })
+      body: JSON.stringify(Object.assign({ auth: localStorage.getItem('auth') }, { action: "getById", id })
     })
+    ))
     .then(res => res.json())
     .then(patient => {
       for (const key in patient) {

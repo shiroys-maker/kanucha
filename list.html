@@ -102,9 +102,10 @@
       fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "get" })
+        body: JSON.stringify(Object.assign({ auth: localStorage.getItem('auth') }, { action: "get" })
       })
-      .then(res => res.json())
+      ))
+    .then(res => res.json())
       .then(data => {
         tbody.innerHTML = "";
         for (const row of data) {
@@ -130,9 +131,10 @@
       fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "delete", id })
+        body: JSON.stringify(Object.assign({ auth: localStorage.getItem('auth') }, { action: "delete", id })
       })
-      .then(res => res.json())
+      ))
+    .then(res => res.json())
       .then(() => {
         alert("削除しました");
         loadPatients();
