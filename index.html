@@ -6,7 +6,11 @@
   <title>患者情報フォーム＋印刷</title>
   <style>
     body { font-family: sans-serif; }
-    .row { margin-bottom: 8px; }
+    .row { margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 12px; }
+    input, select, textarea { font-size: 14px; padding: 4px; }
+    input:not(.short-input), select:not(.short-input), textarea:not(.short-input) {
+      width: 200px;
+    }
     .short-input { width: 80px; }
     .half-height { height: 40px; }
     .normal-height { height: 80px; }
@@ -31,7 +35,7 @@
       年齢: <input name="年齢" class="short-input" readonly>
     </div>
     <div class="row">
-      受診日: <input name="受診日" type="date" class="short-input">
+      受診日: <input name="受診日" type="date">
     </div>
 
     <h3>診療履歴: 看護師</h3>
@@ -60,28 +64,7 @@
     <button type="button" onclick="printFormatted()">印刷</button>
   </form>
 
-  <div class="print-only" id="printArea">
-    <h2>患者記録</h2>
-    <p><strong>ID:</strong> <span id="p_id"></span></p>
-    <p><strong>名前:</strong> <span id="p_name"></span></p>
-    <p><strong>生年月日:</strong> <span id="p_birth"></span></p>
-    <p><strong>性別:</strong> <span id="p_gender"></span></p>
-    <p><strong>年齢:</strong> <span id="p_age"></span></p>
-    <p><strong>受診日:</strong> <span id="p_visit"></span></p>
-    <hr>
-    <h3>診療履歴（看護師）</h3>
-    <p><strong>血圧:</strong> <span id="p_bp"></span>　<strong>脈:</strong> <span id="p_pulse"></span>　<strong>体温:</strong> <span id="p_temp"></span>　<strong>SAT:</strong> <span id="p_sat"></span></p>
-    <p><strong>来院の目的:</strong><br><span id="p_purpose"></span></p>
-    <p><strong>既往歴:</strong><br><span id="p_history"></span></p>
-    <p><strong>内服薬:</strong><br><span id="p_med"></span></p>
-    <p><strong>アレルギー:</strong><br><span id="p_allergy"></span></p>
-    <hr>
-    <h3>診療履歴（医師）</h3>
-    <p><strong>診察所見:</strong><br><span id="p_findings"></span></p>
-    <p><strong>診断名:</strong><br><span id="p_diag"></span></p>
-    <p><strong>投薬内容:</strong><br><span id="p_rx"></span></p>
-    <p><strong>備考:</strong><br><span id="p_remarks"></span></p>
-  </div>
+  <div class="print-only" id="printArea"></div>
 
   <script>
     const form = document.forms[0];
@@ -131,25 +114,29 @@
     function printFormatted() {
       const f = form;
       const getVal = name => f[name] ? f[name].value : "";
-      document.getElementById("p_id").textContent = getVal("id");
-      document.getElementById("p_name").textContent = getVal("名前");
-      document.getElementById("p_birth").textContent = getVal("生年月日");
-      document.getElementById("p_gender").textContent = getVal("性別");
-      document.getElementById("p_age").textContent = getVal("年齢");
-      document.getElementById("p_visit").textContent = getVal("受診日");
-      document.getElementById("p_bp").textContent = getVal("血圧");
-      document.getElementById("p_pulse").textContent = getVal("脈");
-      document.getElementById("p_temp").textContent = getVal("体温");
-      document.getElementById("p_sat").textContent = getVal("SAT");
-      document.getElementById("p_purpose").textContent = getVal("来院の目的");
-      document.getElementById("p_history").textContent = getVal("既往歴");
-      document.getElementById("p_med").textContent = getVal("内服薬");
-      document.getElementById("p_allergy").textContent = getVal("アレルギー");
-      document.getElementById("p_findings").textContent = getVal("診察所見");
-      document.getElementById("p_diag").textContent = getVal("診断名");
-      document.getElementById("p_rx").textContent = getVal("投薬内容");
-      document.getElementById("p_remarks").textContent = getVal("備考");
-
+      const html = `
+        <h2>患者記録</h2>
+        <p><strong>ID:</strong> ${getVal("id")}</p>
+        <p><strong>名前:</strong> ${getVal("名前")}</p>
+        <p><strong>生年月日:</strong> ${getVal("生年月日")}</p>
+        <p><strong>性別:</strong> ${getVal("性別")}</p>
+        <p><strong>年齢:</strong> ${getVal("年齢")}</p>
+        <p><strong>受診日:</strong> ${getVal("受診日")}</p>
+        <hr>
+        <h3>診療履歴（看護師）</h3>
+        <p><strong>血圧:</strong> ${getVal("血圧")}　<strong>脈:</strong> ${getVal("脈")}　<strong>体温:</strong> ${getVal("体温")}　<strong>SAT:</strong> ${getVal("SAT")}</p>
+        <p><strong>来院の目的:</strong><br>${getVal("来院の目的")}</p>
+        <p><strong>既往歴:</strong><br>${getVal("既往歴")}</p>
+        <p><strong>内服薬:</strong><br>${getVal("内服薬")}</p>
+        <p><strong>アレルギー:</strong><br>${getVal("アレルギー")}</p>
+        <hr>
+        <h3>診療履歴（医師）</h3>
+        <p><strong>診察所見:</strong><br>${getVal("診察所見")}</p>
+        <p><strong>診断名:</strong><br>${getVal("診断名")}</p>
+        <p><strong>投薬内容:</strong><br>${getVal("投薬内容")}</p>
+        <p><strong>備考:</strong><br>${getVal("備考")}</p>
+      `;
+      document.getElementById("printArea").innerHTML = html;
       window.print();
     }
   </script>
