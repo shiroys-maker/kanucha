@@ -3,42 +3,59 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>患者情報フォーム＋印刷</title>
+  <title>患者フォーム</title>
   <style>
-    body { font-family: sans-serif; padding: 16px; }
-    .row { margin-bottom: 12px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-    input, select, textarea { font-size: 14px; padding: 4px; }
-    .short-input { width: 60px; }
-    .medium-input { width: 120px; }
-    .long-input { width: 220px; }
-    .half-height { height: 40px; }
-    .normal-height { height: 80px; width: 100%; }
-    .double-height { height: 120px; width: 100%; }
-    .print-only { display: none; }
-    @media print {
-      body * { display: none !important; }
-      .print-only { display: block !important; padding: 16px; }
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    label {
+      width: 100px;
+      display: inline-block;
+    }
+    textarea {
+      width: 100%;
+    }
+    .short-input {
+      width: 100px;
+    }
+    .half-height {
+      height: 40px;
+    }
+    .normal-height {
+      height: 80px;
+    }
+    .double-height {
+      height: 160px;
+    }
+    .button-row {
+      margin-top: 12px;
     }
   </style>
 </head>
 <body>
   <h2>患者情報</h2>
-  <button onclick="location.href='list.html'" style="margin-bottom: 16px;">一覧に戻る</button>
-
   <form id="form">
     <div class="row">
-      ID: <input name="id" class="medium-input" required>
-      名前: <input name="名前" class="long-input">
-      生年月日: <input name="生年月日" type="date" class="medium-input">
-      性別: 
-      <select name="性別" class="short-input">
+      ID: <input name="id" required>
+      名前: <input name="名前">
+      生年月日: <input name="生年月日" type="date">
+      性別:
+      <select name="性別">
         <option>男性</option>
         <option>女性</option>
       </select>
-      年齢: <input name="年齢" class="short-input" readonly>
+      年齢: <input name="年齢" class="short-input" disabled>
     </div>
+
     <div class="row">
-      受診日: <input name="受診日" type="date" class="medium-input">
+      受診日: <input name="受診日" type="date" class="short-input">
     </div>
 
     <h3>診療履歴: 看護師</h3>
@@ -48,29 +65,24 @@
       体温: <input name="体温" class="short-input">
       SAT: <input name="SAT" class="short-input">
     </div>
+
     <div>
-      来院の目的:<br><textarea name="来院の目的" class="double-height"></textarea><br>
-      既往歴:<br><textarea name="既往歴" class="normal-height"></textarea><br>
-      内服薬:<br><textarea name="内服薬" class="normal-height"></textarea><br>
-      アレルギー:<br><textarea name="アレルギー" class="half-height" style="width:100%;"></textarea><br>
+      来院の目的: <textarea name="来院の目的" class="double-height"></textarea><br>
+      既往歴: <textarea name="既往歴" class="normal-height"></textarea><br>
+      内服薬: <textarea name="内服薬" class="normal-height"></textarea><br>
+      アレルギー: <textarea name="アレルギー" class="half-height"></textarea><br>
+      診察所見: <textarea name="診察所見" class="double-height"></textarea><br>
+      診断名: <textarea name="診断名" class="half-height"></textarea><br>
+      投薬内容: <textarea name="投薬内容" class="normal-height"></textarea><br>
+      備考: <textarea name="備考" class="normal-height"></textarea><br>
     </div>
 
-    <h3>診療履歴: 医師</h3>
-    <div>
-      診察所見:<br><textarea name="診察所見" class="double-height"></textarea><br>
-      診断名:<br><textarea name="診断名" class="half-height" style="width:100%;"></textarea><br>
-      投薬内容:<br><textarea name="投薬内容" class="double-height"></textarea><br>
-      備考:<br><textarea name="備考" class="half-height" style="width:100%;"></textarea><br>
+    <div class="button-row">
+      <button type="submit">更新</button>
+      <button type="button" onclick="location.href='list.html'">一覧に戻る</button>
+      <a id="printLink" href="#" target="_blank" style="margin-left: 12px;">🖨 印刷</a>
     </div>
-
-    <button type="submit">更新</button>
-    <button type="button" onclick="printFormatted()">印刷</button>
   </form>
-
-  <div class="print-only" id="printArea">
-    <h2>患者記録</h2>
-    <div id="printContent"></div>
-  </div>
 
   <script>
     const form = document.forms[0];
@@ -85,30 +97,31 @@
       })
       .then(res => res.json())
       .then(data => {
-        if (!data) return;
         for (const name in data) {
           if (form[name]) form[name].value = data[name];
         }
-        if (data["生年月日"]) {
-          const birth = new Date(data["生年月日"]);
+        if (data.生年月日) {
+          const birth = new Date(data.生年月日);
           const today = new Date();
           let age = today.getFullYear() - birth.getFullYear();
-          const m = today.getMonth() - birth.getMonth();
-          if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+          if (today.getMonth() < birth.getMonth() || 
+             (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) {
+            age--;
+          }
           form["年齢"].value = age;
         }
+        // 印刷ボタンリンク設定
+        document.getElementById("printLink").href = `print-from-api.html?id=${data.id}`;
       });
     }
 
     form.addEventListener("submit", e => {
       e.preventDefault();
       const obj = Object.fromEntries(new FormData(form));
-      obj["年齢"] = form["年齢"].value;
-      obj.action = "add";
       fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(obj)
+        body: JSON.stringify({ action: "add", ...obj })
       })
       .then(res => res.json())
       .then(() => {
@@ -117,33 +130,24 @@
       });
     });
 
-    function printFormatted() {
-      const f = form;
-      const get = name => f[name] ? f[name].value : "";
-      const html = `
-        <p><strong>ID:</strong> ${get("id")}</p>
-        <p><strong>名前:</strong> ${get("名前")}</p>
-        <p><strong>生年月日:</strong> ${get("生年月日")}</p>
-        <p><strong>性別:</strong> ${get("性別")}</p>
-        <p><strong>年齢:</strong> ${get("年齢")}</p>
-        <p><strong>受診日:</strong> ${get("受診日")}</p>
-        <hr>
-        <h3>診療履歴（看護師）</h3>
-        <p>血圧: ${get("血圧")}　脈: ${get("脈")}　体温: ${get("体温")}　SAT: ${get("SAT")}</p>
-        <p>来院の目的:<br>${get("来院の目的")}</p>
-        <p>既往歴:<br>${get("既往歴")}</p>
-        <p>内服薬:<br>${get("内服薬")}</p>
-        <p>アレルギー:<br>${get("アレルギー")}</p>
-        <hr>
-        <h3>診療履歴（医師）</h3>
-        <p>診察所見:<br>${get("診察所見")}</p>
-        <p>診断名:<br>${get("診断名")}</p>
-        <p>投薬内容:<br>${get("投薬内容")}</p>
-        <p>備考:<br>${get("備考")}</p>
-      `;
-      document.getElementById("printContent").innerHTML = html;
-      setTimeout(() => { window.print(); }, 100);
+    // 初期日付入力
+    const dateInput = form["受診日"];
+    if (!dateInput.value) {
+      const today = new Date().toISOString().split("T")[0];
+      dateInput.value = today;
     }
+
+    // 年齢自動計算
+    form["生年月日"].addEventListener("change", () => {
+      const birth = new Date(form["生年月日"].value);
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      if (today.getMonth() < birth.getMonth() || 
+         (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())) {
+        age--;
+      }
+      form["年齢"].value = age;
+    });
   </script>
 </body>
 </html>
