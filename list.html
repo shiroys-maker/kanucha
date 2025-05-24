@@ -4,12 +4,11 @@
   <meta charset="UTF-8">
   <title>患者一覧</title>
   <style>
-    body { font-family: sans-serif; }
+    body { font-family: sans-serif; padding: 20px; }
     table { border-collapse: collapse; width: 100%; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
     th { background-color: #f2f2f2; }
     button { margin: 10px 0; padding: 6px 12px; font-size: 14px; }
-    .action-btn { margin-left: 8px; color: red; cursor: pointer; text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -44,15 +43,16 @@
           const tr = document.createElement("tr");
           tr.innerHTML = `
             <td>${row.id}</td>
-            <td>${row.名前}</td>
-            <td>${row.年齢}</td>
-            <td>${row.受診日}</td>
-            <td>
-              <a href="index.html?id=${row.id}">編集</a>
-            </td>
+            <td>${row["名前"]}</td>
+            <td>${row["年齢"]}</td>
+            <td>${row["受診日"]}</td>
+            <td><a href="index.html?id=${row.id}">編集</a></td>
           `;
           tbody.appendChild(tr);
         }
+      })
+      .catch(() => {
+        tbody.innerHTML = "<tr><td colspan='5'>読み込みエラー</td></tr>";
       });
     }
 
