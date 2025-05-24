@@ -5,18 +5,16 @@
   <title>患者フォーム</title>
   <style>
     body { font-family: sans-serif; padding: 20px; }
-    .row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
-    input, select, textarea { padding: 4px; font-size: 14px; }
+    .row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
     .short-input { width: 80px; }
+    textarea { width: 100%; }
     .half-height { height: 40px; }
     .normal-height { height: 80px; }
     .double-height { height: 160px; }
-    textarea { width: 100%; }
   </style>
 </head>
 <body>
   <h2>患者情報</h2>
-  <button onclick="location.href='list.html'">一覧に戻る</button>
   <form id="form">
     <div class="row">
       ID: <input name="id" required>
@@ -27,8 +25,11 @@
         <option>男性</option>
         <option>女性</option>
       </select>
-      年齢: <input name="年齢" class="short-input" disabled>
-      受診日: <input name="受診日" type="date">
+      年齢: <input name="年齢" class="short-input" readonly>
+    </div>
+
+    <div class="row">
+      受診日: <input name="受診日" type="date" class="short-input">
     </div>
 
     <h3>診療履歴: 看護師</h3>
@@ -40,7 +41,7 @@
     </div>
 
     <div>
-      来院の目的: <textarea name="来院の目的" class="normal-height"></textarea><br>
+      来院の目的: <textarea name="来院の目的" class="double-height"></textarea><br>
       既往歴: <textarea name="既往歴" class="normal-height"></textarea><br>
       内服薬: <textarea name="内服薬" class="normal-height"></textarea><br>
       アレルギー: <textarea name="アレルギー" class="half-height"></textarea><br>
@@ -51,32 +52,35 @@
       診察所見: <textarea name="診察所見" class="double-height"></textarea><br>
       診断名: <textarea name="診断名" class="half-height"></textarea><br>
       投薬内容: <textarea name="投薬内容" class="double-height"></textarea><br>
-      備考: <textarea name="備考" class="normal-height"></textarea><br>
+      備考: <textarea name="備考"></textarea><br>
     </div>
 
     <button type="submit">更新</button>
   </form>
 
   <script>
-    const form = document.getElementById('form');
-
-    function calculateAge() {
-      const birth = new Date(form["生年月日"].value);
-      const visit = new Date(form["受診日"].value || new Date());
-      if (!isNaN(birth) && !isNaN(visit)) {
-        let age = visit.getFullYear() - birth.getFullYear();
-        const m = visit.getMonth() - birth.getMonth();
-        if (m < 0 || (m === 0 && visit.getDate() < birth.getDate())) age--;
-        form["年齢"].value = age;
-      }
-    }
-
-    form["生年月日"].addEventListener("change", calculateAge);
-    form["受診日"].addEventListener("change", calculateAge);
-    form["受診日"].value = new Date().toISOString().split("T")[0];
-
+    const form = document.forms[0];
     const params = new URLSearchParams(location.search);
     const id = params.get("id");
+
+    // 年齢自動計算
+    form["生年月日"].addEventListener("change", () => {
+      const birth = new Date(form["生年月日"].value);
+      if (!isNaN(birth)) {
+        const today = new Date();
+        let age = today.getFullYear() - birth.getFullYear();
+        const m = today.getMonth() - birth.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+        form["年齢"].value = age;
+      } else {
+        form["年齢"].value = "";
+      }
+    });
+
+    // デフォルト受診日
+    if (!form["受診日"].value)
+      form["受診日"].value = new Date().toISOString().slice(0, 10);
+
     if (id) {
       fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
         method: "POST",
@@ -86,9 +90,8 @@
       .then(res => res.json())
       .then(data => {
         for (const name in data) {
-          if (form[name]) form[name].value = data[name] || "";
+          if (form[name]) form[name].value = data[name];
         }
-        calculateAge();
       });
     }
 
