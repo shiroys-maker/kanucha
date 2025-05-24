@@ -42,10 +42,10 @@
         for (const row of data) {
           const tr = document.createElement("tr");
           tr.innerHTML = `
-            <td>${row.id}</td>
-            <td>${row["名前"]}</td>
-            <td>${row["年齢"]}</td>
-            <td>${row["受診日"]}</td>
+            <td>${row.id || ""}</td>
+            <td>${row["名前"] || ""}</td>
+            <td>${row["年齢"] || ""}</td>
+            <td>${row["受診日"] || ""}</td>
             <td><a href="index.html?id=${row.id}">編集</a></td>
           `;
           tbody.appendChild(tr);

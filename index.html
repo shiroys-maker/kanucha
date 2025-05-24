@@ -86,7 +86,7 @@
       .then(res => res.json())
       .then(data => {
         for (const name in data) {
-          if (form[name]) form[name].value = data[name];
+          if (form[name]) form[name].value = data[name] || "";
         }
         calculateAge();
       });
