@@ -9,6 +9,7 @@
     th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
     th { background-color: #f2f2f2; }
     button { margin: 10px 0; padding: 6px 12px; font-size: 14px; }
+    .delete-btn { color: red; cursor: pointer; text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -46,7 +47,10 @@
             <td>${row["名前"] || ""}</td>
             <td>${row["性別"] || ""}</td>
             <td>${row["受診日"] || ""}</td>
-            <td><a href="index.html?id=${row.id}">編集</a></td>
+            <td>
+              <a href="index.html?id=${row.id}">編集</a> |
+              <span class="delete-btn" onclick="deletePatient('${row.id}')">削除</span>
+            </td>
           `;
           tbody.appendChild(tr);
         }
@@ -54,6 +58,21 @@
       .catch(() => {
         tbody.innerHTML = "<tr><td colspan='5'>読み込みエラー</td></tr>";
       });
+    }
+
+    function deletePatient(id) {
+      if (!confirm("本当に削除しますか？")) return;
+      fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "delete", id })
+      })
+      .then(res => res.json())
+      .then(() => {
+        alert("削除しました");
+        loadPatients();
+      })
+      .catch(() => alert("削除に失敗しました"));
     }
 
     loadPatients();
