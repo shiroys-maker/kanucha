@@ -65,51 +65,39 @@
   </form>
 
   <script>
-    const form = document.forms[0];
-    const params = new URLSearchParams(location.search);
-    const id = params.get("id");
-    const API = "https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi";
+  const form = document.forms[0];
+  const params = new URLSearchParams(location.search);
+  const id = params.get("id");
 
-    const today = new Date().toISOString().split('T')[0];
-    if (!form["受診日"].value) form["受診日"].value = today;
-
-    const birthInput = form["生年月日"];
-    const ageInput = form["年齢"];
-    birthInput.addEventListener("change", () => {
-      const birth = new Date(birthInput.value);
-      if (!isNaN(birth.getTime())) {
-        const now = new Date();
-        let age = now.getFullYear() - birth.getFullYear();
-        if (now.getMonth() < birth.getMonth() || (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate())) age--;
-        ageInput.value = age;
+  if (id) {
+    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapi/getById", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id })
+    })
+    .then(res => res.json())
+    .then(data => {
+      for (const name in data) {
+        if (form[name]) form[name].value = data[name];
       }
     });
+  }
 
-    if (id) {
-      fetch(`${API}/get?id=${id}`)
-        .then(res => res.json())
-        .then(data => {
-          for (const name in data) {
-            if (form[name]) form[name].value = data[name];
-          }
-          birthInput.dispatchEvent(new Event('change'));
-        });
-    }
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+    const obj = Object.fromEntries(new FormData(form));
 
-    form.addEventListener("submit", e => {
-      e.preventDefault();
-      const obj = Object.fromEntries(new FormData(form));
-      fetch(`${API}/add`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(obj)
-      })
-      .then(() => {
-        alert("保存しました");
-        location.href = "list.html";
-      })
-      .catch(err => alert("送信失敗: " + err.message));
+    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapi/add", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(obj)
+    })
+    .then(res => res.json())
+    .then(() => {
+      alert("保存しました");
+      location.href = "list.html";
     });
-  </script>
+  });
+</script>
 </body>
 </html>

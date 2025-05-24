@@ -30,42 +30,47 @@
   </table>
 
   <script>
-    const API = "https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi";
+  const tbody = document.querySelector("tbody");
 
-    function loadPatients() {
-      fetch(`${API}/list`)
-        .then(res => res.json())
-        .then(data => {
-          const tbody = document.querySelector('#patientTable tbody');
-          tbody.innerHTML = '';
-          data.forEach(row => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td><a href="index.html?id=${row.id}">${row.id}</a></td>
-              <td>${row.名前}</td>
-              <td>${row.年齢}</td>
-              <td>${row.受診日}</td>
-              <td><span class="action-btn" onclick="deletePatient('${row.id}')">削除</span></td>
-            `;
-            tbody.appendChild(tr);
-          });
-        })
-        .catch(err => alert("一覧取得失敗: " + err.message));
-    }
+  function loadPatients() {
+    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapi/get")
+      .then(res => res.json())
+      .then(data => {
+        tbody.innerHTML = "";
+        for (const row of data) {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row.id}</td>
+            <td>${row.名前}</td>
+            <td>${row.年齢}</td>
+            <td>${row.受診日}</td>
+            <td>
+              <a href="index.html?id=${row.id}">編集</a> |
+              <a href="#" onclick="deletePatient('${row.id}')">削除</a>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        }
+      });
+  }
 
-    function deletePatient(id) {
-      if (!confirm(`ID ${id} を削除しますか？`)) return;
-      fetch(`${API}/delete`, {
-        method: 'POST',
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-      })
-        .then(res => res.json())
-        .then(() => loadPatients())
-        .catch(err => alert("削除失敗: " + err.message));
-    }
+  function deletePatient(id) {
+    if (!confirm("本当に削除しますか？")) return;
 
-    loadPatients();
-  </script>
+    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapi/delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id })
+    })
+    .then(res => res.json())
+    .then(() => {
+      alert("削除しました");
+      loadPatients();
+    })
+    .catch(() => alert("削除に失敗しました"));
+  }
+
+  loadPatients();
+</script>
 </body>
 </html>
