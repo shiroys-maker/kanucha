@@ -119,19 +119,6 @@
   </style>
 </head>
 <body>
-<script>
-  const SESSION_DURATION = 10 * 60 * 1000;
-
-  function isAuthenticated() {
-    const auth = localStorage.getItem("auth");
-    const expires = parseInt(localStorage.getItem("auth_expire") || "0", 10);
-    return auth === "nirai43929" && Date.now() < expires;
-  }
-
-  if (!isAuthenticated()) {
-    location.href = "login.html";
-  }
-</script>
 
 <div class="buttons">
 <button onclick="window.print()">印刷</button>
@@ -194,5 +181,51 @@
     </div>
 </div>
 
+<script>
+  function isAuthenticated() {
+    const auth = localStorage.getItem("auth");
+    const expires = parseInt(localStorage.getItem("auth_expire") || "0", 10);
+    return auth === "nirai43929" && Date.now() < expires;
+  }
+
+  if (!isAuthenticated()) {
+    console.log("未認証: login.htmlに戻します");
+    location.href = "login.html";
+  }
+
+  const params = new URLSearchParams(location.search);
+  const id = params.get("id");
+  console.log("取得ID:", id);
+
+  document.getElementById("backBtn").onclick = () => {
+    window.location.href = "list.html";
+  };
+
+  document.getElementById("printBtn").onclick = () => {
+    console.log("印刷ボタン押下");
+    window.print();
+  };
+
+  fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      auth: localStorage.getItem("auth"),
+      action: "getById",
+      id: id
+    })
+  })
+  .then(res => {
+    console.log("レスポンスステータス:", res.status);
+    return res.json();
+  })
+  .then(patient => {
+    console.log("取得データ:", patient);
+    for (const key in patient) {
+      const el = document.getElementById(key);
+      if (el) el.innerText = patient[key];
+    }
+  });
+</script>
 </body>
 </html>
