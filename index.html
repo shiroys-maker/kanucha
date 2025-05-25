@@ -67,6 +67,19 @@
   </style>
 </head>
 <body>
+<script>
+  const SESSION_DURATION = 10 * 60 * 1000;
+
+  function isAuthenticated() {
+    const auth = localStorage.getItem("auth");
+    const expires = parseInt(localStorage.getItem("auth_expire") || "0", 10);
+    return auth === "nirai43929" && Date.now() < expires;
+  }
+
+  if (!isAuthenticated()) {
+    location.href = "login.html";
+  }
+</script>
 
 <div class="card">
 <h2>患者情報</h2>
@@ -104,77 +117,5 @@
 </form>
 </div>
 
-
-<script>
-  if (localStorage.getItem("auth") !== "nirai43929") {
-    location.href = "login.html";
-  }
-
-  const form = document.forms[0];
-  const params = new URLSearchParams(location.search);
-  const id = params.get("id");
-
-  if (id) {
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "getById",
-        id: id
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      for (const name in data) {
-        if (form[name]) form[name].value = data[name];
-      }
-      form["年齢"].value = calcAge(data["生年月日"]);
-      document.getElementById("printLink").href = `print-from-api.html?id=${data.id}`;
-    });
-  }
-
-  form.addEventListener("submit", e => {
-    e.preventDefault();
-    const obj = Object.fromEntries(new FormData(form));
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "add",
-        ...obj
-      })
-    })
-    .then(() => {
-      alert("保存しました");
-      location.href = "list.html";
-    });
-  });
-
-  const dateInput = form["受診日"];
-  if (!dateInput.value) {
-    const today = new Date().toISOString().split("T")[0];
-    dateInput.value = today;
-  }
-
-  function calcAge(birthStr) {
-    if (!birthStr) return '';
-    const birth = new Date(birthStr);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    if (
-      today.getMonth() < birth.getMonth() ||
-      (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate())
-    ) {
-      age--;
-    }
-    return age;
-  }
-
-  form["生年月日"].addEventListener("change", () => {
-    form["年齢"].value = calcAge(form["生年月日"].value);
-  });
-</script>
 </body>
 </html>
