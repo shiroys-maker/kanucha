@@ -134,7 +134,18 @@
     .then(patient => {
       console.log("取得データ:", patient);
       for (const name in patient) {
-        if (form[name]) form[name].value = patient[name];
+        if (form[name]) {
+          if (name === "受診日") {
+            try {
+              const date = new Date(patient[name]);
+              form[name].value = date.toISOString().split("T")[0];
+            } catch (e) {
+              form[name].value = "";
+            }
+          } else {
+            form[name].value = patient[name];
+          }
+        }
       }
       form["年齢"].value = calcAge(patient["生年月日"]);
       document.getElementById("printLink").href = `print-from-api.html?id=${patient.id}`;
