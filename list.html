@@ -107,6 +107,7 @@
       ))
     .then(res => res.json())
       .then(data => {
+        console.log("取得データ:", data);
         tbody.innerHTML = "";
         for (const row of data) {
           const tr = document.createElement("tr");
