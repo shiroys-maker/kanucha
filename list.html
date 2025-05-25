@@ -83,7 +83,6 @@ th {
     location.href = "login.html";
   }
 </script>
-
 <div class="container card"><div style="text-align: right;"><button onclick="logout()">ログアウト</button></div>
 <h1>患者一覧</h1>
 <button onclick="location.href='index.html'">新規登録</button>
@@ -102,5 +101,77 @@ th {
 </table>
 </div>
 
+<script>
+  const SESSION_DURATION = 10 * 60 * 1000;
+
+  function isAuthenticated() {
+    const auth = localStorage.getItem("auth");
+    const expires = parseInt(localStorage.getItem("auth_expire") || "0", 10);
+    return auth === "nirai43929" && Date.now() < expires;
+  }
+
+  if (!isAuthenticated()) {
+    location.href = "login.html";
+  }
+
+  const tbody = document.querySelector("tbody");
+
+  function loadPatients() {
+    console.log("loadPatients関数を呼び出します");
+    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        auth: localStorage.getItem("auth"),
+        action: "get"
+      })
+    })
+    .then(res => {
+      console.log("レスポンスステータス:", res.status);
+      return res.json();
+    })
+    .then(data => {
+      console.log("取得データ:", data);
+      tbody.innerHTML = "";
+      for (const row of data) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.id}</td>
+          <td>${row.名前}</td>
+          <td>${row.性別}</td>
+          <td>${row.年齢}</td>
+          <td>${row.受診日}</td>
+          <td>
+            <a class="button" href="index.html?id=${row.id}">編集</a>
+            <button class="delete-btn" onclick="deletePatient('${row.id}')">削除</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+    });
+  }
+
+  function deletePatient(id) {
+    if (!confirm("本当に削除しますか？")) return;
+    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        auth: localStorage.getItem("auth"),
+        action: "delete",
+        id: id
+      })
+    })
+    .then(res => res.json())
+    .then(() => {
+      alert("削除しました");
+      loadPatients();
+    })
+    .catch(() => alert("削除に失敗しました"));
+  }
+
+  console.log("初期化: loadPatients を呼び出します");
+  loadPatients();
+</script>
 </body>
 </html>
