@@ -165,5 +165,45 @@ if (id) {
   });
 }
 </script>
-</body>
+<script>
+const form = document.forms[0];
+form.addEventListener("submit", e => {
+  e.preventDefault();
+  const obj = Object.fromEntries(new FormData(form));
+  fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      auth: localStorage.getItem("auth"),
+      action: "add",
+      ...obj
+    })
+  })
+  .then(res => res.json())
+  .then(() => {
+    alert("保存しました");
+    location.href = "list.html";
+  })
+  .catch(() => alert("保存に失敗しました"));
+});
+
+function deletePatient(id) {
+  if (!confirm("本当に削除しますか？")) return;
+  fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      auth: localStorage.getItem("auth"),
+      action: "delete",
+      id: id
+    })
+  })
+  .then(res => res.json())
+  .then(() => {
+    alert("削除しました");
+    location.reload();
+  })
+  .catch(() => alert("削除に失敗しました"));
+}
+</script></body>
 </html>
