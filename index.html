@@ -67,19 +67,6 @@
   </style>
 </head>
 <body>
-<script>
-  const SESSION_DURATION = 10 * 60 * 1000;
-
-  function isAuthenticated() {
-    const auth = localStorage.getItem("auth");
-    const expires = parseInt(localStorage.getItem("auth_expire") || "0", 10);
-    return auth === "nirai43929" && Date.now() < expires;
-  }
-
-  if (!isAuthenticated()) {
-    location.href = "login.html";
-  }
-</script>
 <div class="card">
 <h2>患者情報</h2>
 <form id="form">
@@ -116,6 +103,7 @@
 </form>
 </div>
 
+
 <script>
   function isAuthenticated() {
     const auth = localStorage.getItem("auth");
@@ -124,13 +112,16 @@
   }
 
   if (!isAuthenticated()) {
+    console.log("未認証。login.htmlにリダイレクトします");
     location.href = "login.html";
+  } else {
+    console.log("認証済み。auth:", localStorage.getItem("auth"));
   }
 
   const form = document.forms[0];
   const params = new URLSearchParams(location.search);
   const id = params.get("id");
-  console.log("取得ID:", id);
+  console.log("URLパラメータ id =", id);
 
   if (id) {
     fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
@@ -142,7 +133,10 @@
         id: id
       })
     })
-    .then(res => res.json())
+    .then(res => {
+      console.log("レスポンスステータス:", res.status);
+      return res.json();
+    })
     .then(patient => {
       console.log("取得データ:", patient);
       for (const name in patient) {

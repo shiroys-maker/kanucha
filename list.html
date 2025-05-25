@@ -67,6 +67,16 @@ th {
   padding: 4px 10px;
   cursor: pointer;
 }
+
+th:nth-child(3), td:nth-child(3) {
+  width: 60px; /* 性別 */
+}
+th:nth-child(5), td:nth-child(5) {
+  width: 80px; /* 年齢 */
+}
+
+th:nth-child(3), td:nth-child(3) { width: 6em; }
+th:nth-child(5), td:nth-child(5) { width: 6em; }
 </style>
 </head>
 <body>
@@ -87,8 +97,6 @@ th {
 <tbody></tbody>
 </table>
 </div>
-
-
 <script>
   function isAuthenticated() {
     const auth = localStorage.getItem("auth");
