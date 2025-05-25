@@ -7,138 +7,93 @@
   <link rel="stylesheet" href="content.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>患者情報</h1>
-    <form id="patientForm">
-      <input type="hidden" id="id" name="id" />
-      <label for="name">名前</label>
-      <input type="text" id="name" name="name" required />
-
-      <label for="birthDate">生年月日</label>
-      <input type="date" id="birthDate" name="birthDate" required />
-
-      <label for="gender">性別</label>
-      <select id="gender" name="gender" required>
-        <option value="">選択してください</option>
+  <h1>患者情報フォーム</h1>
+  <form id="patient-form">
+    <input type="hidden" name="id" />
+    <label>名前: <input type="text" name="名前" required /></label><br />
+    <label>生年月日: <input type="date" name="生年月日" id="dob" required /></label><br />
+    <label>性別:
+      <select name="性別">
+        <option value="">選択</option>
         <option value="男性">男性</option>
         <option value="女性">女性</option>
       </select>
-
-      <label for="visitDate">受診日</label>
-      <input type="date" id="visitDate" name="visitDate" required />
-
-      <label for="age">年齢</label>
-      <input type="number" id="age" name="age" readonly />
-
-      <label for="bp">血圧</label>
-      <input type="text" id="bp" name="bp" />
-
-      <label for="pulse">脈</label>
-      <input type="text" id="pulse" name="pulse" />
-
-      <label for="temp">体温</label>
-      <input type="text" id="temp" name="temp" />
-
-      <label for="sat">SAT</label>
-      <input type="text" id="sat" name="sat" />
-
-      <label for="purpose">来院の目的</label>
-      <textarea id="purpose" name="purpose"></textarea>
-
-      <label for="history">既往歴</label>
-      <textarea id="history" name="history" rows="4"></textarea>
-
-      <label for="medication">内服薬</label>
-      <textarea id="medication" name="medication" rows="4"></textarea>
-
-      <label for="allergy">アレルギー</label>
-      <textarea id="allergy" name="allergy"></textarea>
-
-      <label for="findings">診察所見</label>
-      <textarea id="findings" name="findings"></textarea>
-
-      <label for="diagnosis">診断名</label>
-      <textarea id="diagnosis" name="diagnosis"></textarea>
-
-      <label for="treatment">投薬内容</label>
-      <textarea id="treatment" name="treatment"></textarea>
-
-      <label for="notes">備考</label>
-      <textarea id="notes" name="notes"></textarea>
-
-      <div class="form-buttons">
-        <button type="submit">保存</button>
-        <button type="button" onclick="window.location.href='list.html'">戻る</button>
-      </div>
-    </form>
-  </div>
+    </label><br />
+    <label>受診日: <input type="date" name="受診日" id="visit-date" required /></label><br />
+    <label>年齢: <input type="text" name="年齢" id="age" readonly /></label><br />
+    <label>診察所見: <textarea name="診察所見"></textarea></label><br />
+    <button type="submit">保存</button>
+    <a href="list.html">一覧へ戻る</a>
+  </form>
 
   <script>
-    const form = document.getElementById("patientForm");
+    const form = document.getElementById("patient-form");
     const params = new URLSearchParams(window.location.search);
-    const patientId = params.get("id");
+    const id = params.get("id");
 
-    if (patientId) {
-      fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "getById", id: patientId }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          const p = data.patient;
-          document.getElementById("id").value = p.id;
-          document.getElementById("name").value = p.name;
-          document.getElementById("birthDate").value = p.birthDate;
-          document.getElementById("gender").value = p.gender;
-          document.getElementById("visitDate").value = p.visitDate;
-          document.getElementById("age").value = p.age;
-          document.getElementById("bp").value = p.bp;
-          document.getElementById("pulse").value = p.pulse;
-          document.getElementById("temp").value = p.temp;
-          document.getElementById("sat").value = p.sat;
-          document.getElementById("purpose").value = p.purpose;
-          document.getElementById("history").value = p.history;
-          document.getElementById("medication").value = p.medication;
-          document.getElementById("allergy").value = p.allergy;
-          document.getElementById("findings").value = p.findings;
-          document.getElementById("diagnosis").value = p.diagnosis;
-          document.getElementById("treatment").value = p.treatment;
-          document.getElementById("notes").value = p.notes;
-        });
-    }
-
-    form.addEventListener("submit", function (e) {
-      e.preventDefault();
-      const patient = Object.fromEntries(new FormData(form));
-      const mode = patientId ? "update" : "add";
-      fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode, patient }),
-      })
-        .then((res) => res.json())
-        .then(() => window.location.href = "list.html")
-        .catch((err) => console.error("送信失敗", err));
-    });
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const today = new Date();
-      const yyyy = today.getFullYear();
-      const mm = String(today.getMonth() + 1).padStart(2, '0');
-      const dd = String(today.getDate()).padStart(2, '0');
-      document.getElementById("visitDate").value = `${yyyy}-${mm}-${dd}`;
-    });
-
-    document.getElementById("birthDate").addEventListener("change", function () {
-      const birth = new Date(this.value);
+    // 年齢計算
+    function calcAge(dob) {
+      const birth = new Date(dob);
       const today = new Date();
       let age = today.getFullYear() - birth.getFullYear();
       const m = today.getMonth() - birth.getMonth();
       if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
         age--;
       }
+      return age;
+    }
+
+    // 生年月日 → 年齢自動入力
+    document.getElementById("dob").addEventListener("change", function () {
+      const age = calcAge(this.value);
       document.getElementById("age").value = age;
+    });
+
+    // 受診日に今日をセット
+    document.addEventListener("DOMContentLoaded", () => {
+      const today = new Date().toISOString().split("T")[0];
+      document.getElementById("visit-date").value = today;
+    });
+
+    // データ取得（編集時）
+    if (id) {
+      fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          auth: localStorage.getItem("auth"),
+          action: "getById",
+          id: id
+        })
+      })
+        .then(res => res.json())
+        .then(data => {
+          for (const key in data) {
+            if (form[key]) form[key].value = data[key];
+          }
+          form["年齢"].value = calcAge(form["生年月日"].value);
+        });
+    }
+
+    // 保存処理
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const obj = Object.fromEntries(new FormData(form));
+      fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          auth: localStorage.getItem("auth"),
+          action: "add",
+          ...obj
+        })
+      })
+        .then(res => res.json())
+        .then(() => {
+          alert("保存しました");
+          location.href = "list.html";
+        })
+        .catch(() => alert("保存に失敗しました"));
     });
   </script>
 </body>
