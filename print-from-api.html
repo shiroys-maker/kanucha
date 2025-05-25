@@ -119,10 +119,9 @@
   </style>
 </head>
 <body>
-
 <div class="buttons">
 <button onclick="window.print()">印刷</button>
-<button id="backBtn">戻る</button>
+<button id="closeBtn">閉じる</button>
 </div>
 <div class="record-container" id="record">
 <div>
@@ -181,6 +180,7 @@
     </div>
 </div>
 
+
 <script>
   function isAuthenticated() {
     const auth = localStorage.getItem("auth");
@@ -197,8 +197,9 @@
   const id = params.get("id");
   console.log("取得ID:", id);
 
-  document.getElementById("backBtn").onclick = () => {
-    window.location.href = "list.html";
+  document.getElementById("closeBtn").onclick = () => {
+    console.log("閉じるボタン押下");
+    window.close();
   };
 
   document.getElementById("printBtn").onclick = () => {
