@@ -78,14 +78,7 @@ function calcAge(birthday) {
   return age;
 }
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const headers = ["id", "名前", "生年月日", "性別", "年齢", "受診日", "血圧", "脈", "体温", "SAT", "来院の目的", "既往歴", "内服薬", "アレルギー", "診察所見", "診断名", "投薬内容", "備考"];
-    const data = {};
-    headers.forEach(key => {
-      data[key] = formData.get(key) || "";
-    });
+  
 
     fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
       method: "POST",
@@ -122,14 +115,7 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 });
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const headers = ["id", "名前", "生年月日", "性別", "年齢", "受診日", "血圧", "脈", "体温", "SAT", "来院の目的", "既往歴", "内服薬", "アレルギー", "診察所見", "診断名", "投薬内容", "備考"];
-    const data = {};
-    headers.forEach(key => {
-      data[key] = formData.get(key) || "";
-    });
+  
 
     fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
       method: "POST",
@@ -154,14 +140,7 @@ document.addEventListener("DOMContentLoaded", function() {
       location.href = "login.html";
     }
   
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const headers = ["id", "名前", "生年月日", "性別", "年齢", "受診日", "血圧", "脈", "体温", "SAT", "来院の目的", "既往歴", "内服薬", "アレルギー", "診察所見", "診断名", "投薬内容", "備考"];
-    const data = {};
-    headers.forEach(key => {
-      data[key] = formData.get(key) || "";
-    });
+  
 
     fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
       method: "POST",
@@ -239,14 +218,7 @@ if (id) {
   });
 }
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const headers = ["id", "名前", "生年月日", "性別", "年齢", "受診日", "血圧", "脈", "体温", "SAT", "来院の目的", "既往歴", "内服薬", "アレルギー", "診察所見", "診断名", "投薬内容", "備考"];
-    const data = {};
-    headers.forEach(key => {
-      data[key] = formData.get(key) || "";
-    });
+  
 
     fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
       method: "POST",
@@ -317,14 +289,7 @@ document.addEventListener("DOMContentLoaded", () => {
   
 });
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const headers = ["id", "名前", "生年月日", "性別", "年齢", "受診日", "血圧", "脈", "体温", "SAT", "来院の目的", "既往歴", "内服薬", "アレルギー", "診察所見", "診断名", "投薬内容", "備考"];
-    const data = {};
-    headers.forEach(key => {
-      data[key] = formData.get(key) || "";
-    });
+  
 
     fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
       method: "POST",
@@ -396,12 +361,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
-    const formData = new FormData(form);
-    const headers = ["id", "名前", "生年月日", "性別", "受診日", "血圧", "脈", "体温", "SAT", "来院の目的", "既往歴", "内服薬", "アレルギー", "診察所見", "診断名", "投薬内容", "備考"];
-    const data = {};
-    headers.forEach(key => {
-      data[key] = formData.get(key) || "";
-    });
+    const data = {
+      id: form["id"]?.value || "",
+      名前: form["名前"]?.value || "",
+      生年月日: form["生年月日"]?.value || "",
+      性別: form["性別"]?.value || "",
+      受診日: form["受診日"]?.value || "",
+      血圧: form["血圧"]?.value || "",
+      脈: form["脈"]?.value || "",
+      体温: form["体温"]?.value || "",
+      SAT: form["SAT"]?.value || "",
+      来院の目的: form["来院の目的"]?.value || "",
+      既往歴: form["既往歴"]?.value || "",
+      内服薬: form["内服薬"]?.value || "",
+      アレルギー: form["アレルギー"]?.value || "",
+      診察所見: form["診察所見"]?.value || "",
+      診断名: form["診断名"]?.value || "",
+      投薬内容: form["投薬内容"]?.value || "",
+      備考: form["備考"]?.value || ""
+    };
 
     fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
       method: "POST",
