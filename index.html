@@ -112,16 +112,13 @@
   }
 
   if (!isAuthenticated()) {
-    console.log("未認証。login.htmlにリダイレクトします");
     location.href = "login.html";
-  } else {
-    console.log("認証済み。auth:", localStorage.getItem("auth"));
   }
 
   const form = document.forms[0];
   const params = new URLSearchParams(location.search);
   const id = params.get("id");
-  console.log("URLパラメータ id =", id);
+  console.log("取得ID:", id);
 
   if (id) {
     fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
@@ -133,10 +130,7 @@
         id: id
       })
     })
-    .then(res => {
-      console.log("レスポンスステータス:", res.status);
-      return res.json();
-    })
+    .then(res => res.json())
     .then(patient => {
       console.log("取得データ:", patient);
       for (const name in patient) {
@@ -150,6 +144,7 @@
   form.addEventListener("submit", e => {
     e.preventDefault();
     const obj = Object.fromEntries(new FormData(form));
+    console.log("送信データ:", obj);
     fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -159,7 +154,8 @@
         ...obj
       })
     })
-    .then(() => {
+    .then(res => {
+      console.log("保存結果:", res.status);
       alert("保存しました");
       location.href = "list.html";
     });

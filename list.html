@@ -45,7 +45,6 @@ button:hover, a.button:hover {
 table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed;
 }
 
 th, td {
@@ -74,10 +73,11 @@ th {
 }
 
 
+table { table-layout: auto; }
 th:nth-child(5), td:nth-child(5) { width: 6em; }  /* 年齢欄 */</style>
 </head>
 <body>
-<div class="container card"><div style="text-align: right;"><button onclick="logout()">ログアウト</button></div>
+<div class="container card">
 <h1>患者一覧</h1>
 <button onclick="location.href='index.html'">新規登録</button>
 <table id="patientTable">
