@@ -70,19 +70,7 @@ th {
 </style>
 </head>
 <body>
-<script>
-  const SESSION_DURATION = 10 * 60 * 1000;
 
-  function isAuthenticated() {
-    const auth = localStorage.getItem("auth");
-    const expires = parseInt(localStorage.getItem("auth_expire") || "0", 10);
-    return auth === "nirai43929" && Date.now() < expires;
-  }
-
-  if (!isAuthenticated()) {
-    location.href = "login.html";
-  }
-</script>
 <div class="container card"><div style="text-align: right;"><button onclick="logout()">ログアウト</button></div>
 <h1>患者一覧</h1>
 <button onclick="location.href='index.html'">新規登録</button>
@@ -101,15 +89,8 @@ th {
 </table>
 </div>
 
+
 <script>
-  const SESSION_DURATION = 10 * 60 * 1000;
-
-  function isAuthenticated() {
-    const auth = localStorage.getItem("auth");
-    const expires = parseInt(localStorage.getItem("auth_expire") || "0", 10);
-    return auth === "nirai43929" && Date.now() < expires;
-  }
-
   if (!isAuthenticated()) {
     location.href = "login.html";
   }
