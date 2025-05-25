@@ -197,15 +197,21 @@
   const id = params.get("id");
   console.log("取得ID:", id);
 
-  document.getElementById("closeBtn").onclick = () => {
-    console.log("閉じるボタン押下");
-    window.close();
-  };
+  const closeBtn = document.getElementById("closeBtn");
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      console.log("閉じるボタン押下");
+      window.close();
+    };
+  }
 
-  document.getElementById("printBtn").onclick = () => {
-    console.log("印刷ボタン押下");
-    window.print();
-  };
+  const printBtn = document.getElementById("printBtn");
+  if (printBtn) {
+    printBtn.onclick = () => {
+      console.log("印刷ボタン押下");
+      window.print();
+    };
+  }
 
   fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
     method: "POST",
