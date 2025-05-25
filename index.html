@@ -271,23 +271,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const id = urlParams.get("id");
   const form = document.querySelector("form");
 
-  const calcAge = (dob) => {
-    const birth = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-    return age;
-  };
-
-  const dobInput = document.getElementById("生年月日");
-  const ageInput = document.getElementById("年齢");
-  if (dobInput && ageInput) {
-    dobInput.addEventListener("change", () => {
-      ageInput.value = calcAge(dobInput.value);
-    });
-  }
-
   const visitDateInput = document.getElementById("受診日");
   if (visitDateInput) {
     visitDateInput.value = new Date().toISOString().split("T")[0];
