@@ -6,72 +6,48 @@
 <meta charset="utf-8"/>
 <title>患者一覧</title>
 <style>
-    
-  body {
-    font-family: 'Helvetica Neue', sans-serif;
-    background: #eef5f9;
-    padding: 24px;
-    color: #333;
-
-  .card {
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-    max-width: 900px;
-    margin: auto;
-
-  button, a.button {
-    background: #007acc;
-    color: white;
-    padding: 8px 16px;
-    font-size: 15px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    text-decoration: none;
-    margin: 5px;
-
-  button:hover, a.button:hover {
-    background: #005fa3;
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 16px;
-
-  th, td {
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: left;
-
-  th {
-    background: #d9ecf7;
-
-    .container {
-      max-width: 900px;
-      margin: auto;
-    .delete-btn {
-      color: red;
-      background: none;
-      border: none;
-      cursor: pointer;
-      text-decoration: underline;
-      padding: 0;
-      margin-left: 8px;
-  
-
-/* 全体の横幅を100%にする */
-.container {
-  max-width: 100%;
+body {
+  font-family: 'Helvetica Neue', sans-serif;
+  background: #eef5f9;
+  padding: 24px;
+  color: #333;
+  margin: 0;
 }
 
-/* テーブル列の枠線と整列 */
+.container {
+  max-width: 100%;
+  margin: auto;
+}
+
+.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+button, a.button {
+  background: #007acc;
+  color: white;
+  padding: 8px 16px;
+  font-size: 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  margin: 5px;
+}
+
+button:hover, a.button:hover {
+  background: #005fa3;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
 }
+
 th, td {
   border: 1px solid #999;
   padding: 10px;
@@ -79,7 +55,10 @@ th, td {
   word-wrap: break-word;
 }
 
-/* 削除ボタンを赤にする */
+th {
+  background: #d9ecf7;
+}
+
 .delete-btn {
   color: white;
   background-color: red;
