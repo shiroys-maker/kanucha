@@ -119,7 +119,7 @@
     const id = params.get("id");
 
     if (id) {
-      fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
+      fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(Object.assign({ auth: localStorage.getItem('auth') }, { action: "getById", id })
@@ -138,7 +138,7 @@
     form.addEventListener("submit", e => {
       e.preventDefault();
       const obj = Object.fromEntries(new FormData(form));
-      fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapiv2", {
+      fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(Object.assign({ auth: localStorage.getItem('auth') }, { action: "add", ...obj })
