@@ -77,33 +77,7 @@ function calcAge(birthday) {
   }
   return age;
 }
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const headers = ["id", "名前", "生年月日", "性別", "年齢", "受診日", "血圧", "脈", "体温", "SAT", "来院の目的", "既往歴", "内服薬", "アレルギー", "診察所見", "診断名", "投薬内容", "備考"];
-    const data = {};
-    headers.forEach(key => {
-      data[key] = formData.get(key) || "";
-    });
-
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "add",
-        ...data
-      })
-    })
-    .then(res => res.json())
-    .then(() => {
-      alert("保存しました");
-      location.href = "list.html";
-    })
-    .catch(() => alert("保存に失敗しました"));
-  });
-<script>
+</script><script>
 document.addEventListener("DOMContentLoaded", function() {
   // 年齢自動計算
   const birthdayInput = document.querySelector('[name="生年月日"]');
@@ -121,65 +95,13 @@ document.addEventListener("DOMContentLoaded", function() {
     visitDateInput.value = today;
   }
 });
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const headers = ["id", "名前", "生年月日", "性別", "年齢", "受診日", "血圧", "脈", "体温", "SAT", "来院の目的", "既往歴", "内服薬", "アレルギー", "診察所見", "診断名", "投薬内容", "備考"];
-    const data = {};
-    headers.forEach(key => {
-      data[key] = formData.get(key) || "";
-    });
-
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "add",
-        ...data
-      })
-    })
-    .then(res => res.json())
-    .then(() => {
-      alert("保存しました");
-      location.href = "list.html";
-    })
-    .catch(() => alert("保存に失敗しました"));
-  });
-</head>
+</script></head>
 <body>
 <script>
     if (localStorage.getItem("auth") !== "nirai43929") {
       location.href = "login.html";
     }
-  
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const headers = ["id", "名前", "生年月日", "性別", "年齢", "受診日", "血圧", "脈", "体温", "SAT", "来院の目的", "既往歴", "内服薬", "アレルギー", "診察所見", "診断名", "投薬内容", "備考"];
-    const data = {};
-    headers.forEach(key => {
-      data[key] = formData.get(key) || "";
-    });
-
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "add",
-        ...data
-      })
-    })
-    .then(res => res.json())
-    .then(() => {
-      alert("保存しました");
-      location.href = "list.html";
-    })
-    .catch(() => alert("保存に失敗しました"));
-  });
-
+  </script>
 <div class="card">
 <h2>患者情報</h2>
 <form id="form">
@@ -238,181 +160,6 @@ if (id) {
     document.getElementById("printLink").href = `print-from-api.html?id=${data.id}`;
   });
 }
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const headers = ["id", "名前", "生年月日", "性別", "年齢", "受診日", "血圧", "脈", "体温", "SAT", "来院の目的", "既往歴", "内服薬", "アレルギー", "診察所見", "診断名", "投薬内容", "備考"];
-    const data = {};
-    headers.forEach(key => {
-      data[key] = formData.get(key) || "";
-    });
-
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "add",
-        ...data
-      })
-    })
-    .then(res => res.json())
-    .then(() => {
-      alert("保存しました");
-      location.href = "list.html";
-    })
-    .catch(() => alert("保存に失敗しました"));
-  });
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const id = urlParams.get("id");
-  const form = document.querySelector("form");
-
-  const calcAge = (dob) => {
-    const birth = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-    return age;
-  };
-
-  const dobInput = document.getElementById("生年月日");
-  const ageInput = document.getElementById("年齢");
-  if (dobInput && ageInput) {
-    dobInput.addEventListener("change", () => {
-      ageInput.value = calcAge(dobInput.value);
-    });
-  }
-
-  const visitDateInput = document.getElementById("受診日");
-  if (visitDateInput) {
-    visitDateInput.value = new Date().toISOString().split("T")[0];
-  }
-
-  if (id) {
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "getById",
-        id: id
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      for (const name in data) {
-        if (form[name]) form[name].value = data[name];
-      }
-      if (dobInput && ageInput) {
-        ageInput.value = calcAge(dobInput.value);
-      }
-    });
-  }
-
-  
-});
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const formData = new FormData(form);
-    const headers = ["id", "名前", "生年月日", "性別", "年齢", "受診日", "血圧", "脈", "体温", "SAT", "来院の目的", "既往歴", "内服薬", "アレルギー", "診察所見", "診断名", "投薬内容", "備考"];
-    const data = {};
-    headers.forEach(key => {
-      data[key] = formData.get(key) || "";
-    });
-
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "add",
-        ...data
-      })
-    })
-    .then(res => res.json())
-    .then(() => {
-      alert("保存しました");
-      location.href = "list.html";
-    })
-    .catch(() => alert("保存に失敗しました"));
-  });
-
+</script>
 </body>
 </html>
-
-document.addEventListener("DOMContentLoaded", () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const id = urlParams.get("id");
-  const form = document.querySelector("form");
-
-  const calcAge = (dob) => {
-    const birth = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-    return age;
-  };
-
-  const dobInput = document.getElementById("生年月日");
-  const ageInput = document.getElementById("年齢");
-  if (dobInput && ageInput) {
-    dobInput.addEventListener("change", () => {
-      ageInput.value = calcAge(dobInput.value);
-    });
-  }
-
-  const visitInput = document.getElementById("受診日");
-  if (visitInput && !visitInput.value) {
-    visitInput.value = new Date().toISOString().split("T")[0];
-  }
-
-  if (id) {
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "getById",
-        id: id
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      for (const key in data) {
-        const el = form.querySelector(`[name='${key}']`);
-        if (el) el.value = data[key];
-      }
-      if (dobInput && ageInput) {
-        ageInput.value = calcAge(dobInput.value);
-      }
-    });
-  }
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const obj = Object.fromEntries(new FormData(form));
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "add",
-        ...obj
-      })
-    })
-    .then(res => res.json())
-    .then(() => {
-      alert("保存しました");
-      location.href = "list.html";
-    })
-    .catch(() => alert("保存に失敗しました"));
-  });
-});
-</script>
