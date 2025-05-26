@@ -360,12 +360,13 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(res => res.json())
     .then(data => {
       for (const key in data) {
-        const el = form.querySelector(`[name='${key}
+
 if (id && document.getElementById("printLink")) {
-  document.getElementById("printLink").href = `print-from-api.html?id=${id}`;
+  document.getElementById("printLink").href =
+    `${location.origin}${location.pathname.replace("index.html", "")}print-from-api.html?id=${id}`;
 }
 
-']`);
+        const el = form.querySelector(`[name='${key}']`);
         if (el) el.value = data[key];
       }
       if (dobInput && ageInput) {
