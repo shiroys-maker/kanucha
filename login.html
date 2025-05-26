@@ -1,51 +1,45 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ログイン</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login</title>
   <style>
     body {
-      background-color: #e9f1f5;
+      font-family: sans-serif;
+      background-color: #e6f0f5;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
-      font-family: sans-serif;
     }
     .login-container {
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-      width: 320px;
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 300px;
       text-align: center;
     }
-    .login-container h2 {
-      margin-bottom: 1.5rem;
-    }
-    .login-container input[type="text"],
-    .login-container input[type="password"] {
+    input {
       width: 100%;
-      padding: 0.8rem;
-      margin: 0.5rem 0;
-      border: 1px solid #ccc;
+      padding: 10px;
+      margin: 10px 0;
       border-radius: 6px;
-      box-sizing: border-box;
+      border: 1px solid #ccc;
+      font-size: 16px;
     }
-    .login-container button {
+    button {
       width: 100%;
-      padding: 0.8rem;
+      padding: 10px;
       background-color: #007bff;
       color: white;
       border: none;
       border-radius: 6px;
+      font-size: 16px;
       cursor: pointer;
-      font-size: 1rem;
-    }
-    .login-container button:hover {
-      background-color: #0056b3;
     }
   </style>
 </head>
@@ -60,16 +54,17 @@
   </div>
 
   <script>
-    const loginForm = document.getElementById('login-form');
-    loginForm.addEventListener('submit', (e) => {
+    document.getElementById("login-form").addEventListener("submit", function (e) {
       e.preventDefault();
-      const id = document.getElementById('login-id').value;
-      const password = document.getElementById('login-password').value;
-
-      if (id === 'kanucha' && password === 'nirai43929') {
-        window.location.href = 'list.html';
+      const id = document.getElementById("login-id").value.trim();
+      const pw = document.getElementById("login-password").value.trim();
+      if (id === "kanucha" && pw === "nirai43929") {
+        localStorage.setItem("auth", "nirai43929");
+        const expire = new Date().getTime() + 10 * 60 * 1000;
+        localStorage.setItem("auth_expire", expire);
+        window.location.href = "list.html";
       } else {
-        alert('IDまたはパスワードが違います');
+        alert("IDまたはパスワードが正しくありません");
       }
     });
   </script>
