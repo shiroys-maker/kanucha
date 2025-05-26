@@ -1,74 +1,68 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ログイン</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
     body {
-      background-color: #e6f0f5;
-      font-family: Arial, sans-serif;
+      font-family: sans-serif;
+      background-color: #e9f0f3;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       height: 100vh;
       margin: 0;
     }
-    .login-box {
-      background: #fff;
+    .login-container {
+      background: white;
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      width: 320px;
-    }
-    .login-box h2 {
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 300px;
       text-align: center;
-      margin-bottom: 20px;
     }
-    .input-group {
-      position: relative;
-      margin-bottom: 20px;
-    }
-    .input-group input {
+    input[type="text"], input[type="password"] {
       width: 100%;
       padding: 10px;
-      padding-right: 40px;
+      margin: 10px 0;
+      box-sizing: border-box;
       border: 1px solid #ccc;
       border-radius: 6px;
-      font-size: 16px;
-    }
-    .input-group .toggle-password {
-      position: absolute;
-      top: 50%;
-      right: 12px;
-      transform: translateY(-50%);
-      cursor: pointer;
     }
     button {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       background-color: #007bff;
       color: white;
-      font-weight: bold;
       border: none;
       border-radius: 6px;
       cursor: pointer;
       font-size: 16px;
     }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .eye-icon {
+      position: absolute;
+      right: 20px;
+      top: 40px;
+      cursor: pointer;
+    }
+    .password-container {
+      position: relative;
+    }
   </style>
 </head>
 <body>
-  <div class="login-box">
+  <div class="login-container">
     <h2>ログイン</h2>
     <form id="login-form">
-      <div class="input-group">
-        <input type="text" id="login-id" placeholder="ID" required />
-      </div>
-      <div class="input-group">
-        <input type="password" id="login-password" placeholder="パスワード" required />
-        <span class="toggle-password" onclick="togglePassword()">👁</span>
+      <input type="text" id="login-id" placeholder="ID" required />
+      <div class="password-container">
+        <input type="password" id="login-password" placeholder="パスワード" required autocomplete="current-password" />
+        <span class="eye-icon" onclick="togglePassword()">👁️</span>
       </div>
       <button type="submit">ログイン</button>
     </form>
@@ -76,20 +70,24 @@
 
   <script>
     function togglePassword() {
-      const pw = document.getElementById("login-password");
-      pw.type = pw.type === "password" ? "text" : "password";
+      const pwField = document.getElementById("login-password");
+      pwField.type = pwField.type === "password" ? "text" : "password";
     }
 
-    document.getElementById("login-form").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const id = document.getElementById("login-id").value;
-      const pw = document.getElementById("login-password").value;
-      if (id === "kanucha" && pw === "nirai43929") {
-        localStorage.setItem("loggedIn", "true");
-        window.location.href = "list.html";
-      } else {
-        alert("IDまたはパスワードが正しくありません");
-      }
+    document.addEventListener("DOMContentLoaded", function () {
+      const form = document.getElementById("login-form");
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const id = document.getElementById("login-id").value.trim();
+        const pw = document.getElementById("login-password").value.trim();
+
+        if (id === "kanucha" && pw === "nirai43929") {
+          localStorage.setItem("loggedIn", "true");
+          window.location.href = "list.html";
+        } else {
+          alert("IDまたはパスワードが間違っています");
+        }
+      });
     });
   </script>
 </body>
