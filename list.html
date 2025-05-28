@@ -1,138 +1,140 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="utf-8"/>
-<title>患者一覧</title>
-<script>
-  const loginTime = localStorage.getItem("kanuchaLogin");
-  const now = Date.now();
-  if (!loginTime || now - parseInt(loginTime) > 10 * 60 * 1000) {
-    localStorage.removeItem("kanuchaLogin");
-    window.location.href = "login.html";
-  } else {
-    localStorage.setItem("kanuchaLogin", Date.now().toString());
-  }
-</script>
-<style>
-/* 元のスタイルそのまま */
-body {
-  font-family: 'Helvetica Neue', sans-serif;
-  background: #eef5f9;
-  padding: 24px;
-  color: #333;
-  margin: 0;
-}
-.container {
-  max-width: 100%;
-  margin: auto;
-}
-.card {
-  background: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-}
-button, a.button {
-  background: #007acc;
-  color: white;
-  padding: 8px 16px;
-  font-size: 15px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  text-decoration: none;
-  margin: 5px;
-}
-button:hover, a.button:hover {
-  background: #005fa3;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-  table-layout: auto;
-}
-th, td {
-  border: 1px solid #999;
-  padding: 10px;
-  text-align: left;
-  word-wrap: break-word;
-}
-th {
-  background: #d9ecf7;
-}
-th:nth-child(5), td:nth-child(5) { width: 6em; }
-.delete-btn {
-  color: white;
-  background-color: red;
-  border: none;
-  border-radius: 4px;
-  padding: 4px 10px;
-  cursor: pointer;
-}
-</style>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+  <meta charset="utf-8"/>
+  <title>患者一覧</title>
+  <script>
+    const loginTime = localStorage.getItem("kanuchaLogin");
+    const now = Date.now();
+    if (!loginTime || now - parseInt(loginTime) > 10 * 60 * 1000) {
+      localStorage.removeItem("kanuchaLogin");
+      window.location.href = "login.html";
+    } else {
+      localStorage.setItem("kanuchaLogin", Date.now().toString());
+    }
+  </script>
+  <style>
+    body {
+      font-family: 'Helvetica Neue', sans-serif;
+      background: #eef5f9;
+      padding: 24px;
+      color: #333;
+      margin: 0;
+    }
+    .container {
+      max-width: 100%;
+      margin: auto;
+    }
+    .card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+    button, a.button {
+      background: #007acc;
+      color: white;
+      padding: 8px 16px;
+      font-size: 15px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      margin: 5px;
+    }
+    button:hover, a.button:hover {
+      background: #005fa3;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: auto;
+    }
+    th, td {
+      border: 1px solid #999;
+      padding: 10px;
+      text-align: left;
+      word-wrap: break-word;
+    }
+    th {
+      background: #d9ecf7;
+    }
+    th:nth-child(5), td:nth-child(5) { width: 6em; }
+    .delete-btn {
+      color: white;
+      background-color: red;
+      border: none;
+      border-radius: 4px;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+  </style>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBoCiWXT9A8ndxEAKYHx-Vnog_92G9T3k8",
-  authDomain: "kanucha-api.firebaseapp.com",
-  projectId: "kanucha-api",
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyBoCiWXT9A8ndxEAKYHx-Vnog_92G9T3k8",
+      authDomain: "kanucha-api.firebaseapp.com",
+      projectId: "kanucha-api",
+    };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-function calculateAge(birthdateStr, visitDateStr) {
-  const birthdate = new Date(birthdateStr);
-  const visitDate = visitDateStr ? new Date(visitDateStr) : new Date();
-  let age = visitDate.getFullYear() - birthdate.getFullYear();
-  const m = visitDate.getMonth() - birthdate.getMonth();
-  if (m < 0 || (m === 0 && visitDate.getDate() < birthdate.getDate())) {
-    age--;
-  }
-  return age;
-}
+    function calculateAge(birthdateStr, visitDateStr) {
+      const birthdate = new Date(birthdateStr);
+      const visitDate = visitDateStr ? new Date(visitDateStr) : new Date();
+      let age = visitDate.getFullYear() - birthdate.getFullYear();
+      const m = visitDate.getMonth() - birthdate.getMonth();
+      if (m < 0 || (m === 0 && visitDate.getDate() < birthdate.getDate())) {
+        age--;
+      }
+      return age;
+    }
 
-const tbody = document.querySelector("tbody");
+    const tbody = document.querySelector("tbody");
 
-function loadPatients() {
-  getDocs(collection(db, "patients"))
-    .then(snapshot => {
-      tbody.innerHTML = "";
-      snapshot.forEach(docSnap => {
-        const row = docSnap.data();
-        row.id = docSnap.id; // ここ重要
-        const age = calculateAge(row['生年月日'], row['受診日']);
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${row.id || ''}</td>
-          <td>${row.名前 || ''}</td>
-          <td>${row.性別 || ''}</td>
-          <td>${age}</td>
-          <td>${row.受診日 || ''}</td>
-          <td>
-            <a class="button" href="index.html?id=${row.id}">編集</a>
-            <button class="delete-btn" onclick="deletePatient('${docSnap.id}')">削除</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    });
-}
+    function loadPatients() {
+      getDocs(collection(db, "patients"))
+        .then(snapshot => {
+          tbody.innerHTML = "";
+          snapshot.forEach(docSnap => {
+            const row = docSnap.data();
+            row.id = docSnap.id;
+            const age = calculateAge(row['生年月日'], row['受診日']);
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${row.id || ''}</td>
+              <td>${row.名前 || ''}</td>
+              <td>${row.性別 || ''}</td>
+              <td>${age}</td>
+              <td>${row.受診日 || ''}</td>
+              <td>
+                <a class="button" href="index.html?id=${row.id}">編集</a>
+                <button class="delete-btn" onclick="deletePatient('${docSnap.id}')">削除</button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(error => {
+          console.error("読み込みエラー:", error);
+        });
+    }
 
-window.deletePatient = function(id) {
-  if (!confirm("本当に削除しますか？")) return;
-  deleteDoc(doc(db, "patients", id))
-    .then(() => {
-      alert("削除しました");
-      loadPatients();
-    })
-    .catch(() => alert("削除に失敗しました"));
-};
+    window.deletePatient = function(id) {
+      if (!confirm("本当に削除しますか？")) return;
+      deleteDoc(doc(db, "patients", id))
+        .then(() => {
+          alert("削除しました");
+          loadPatients();
+        })
+        .catch(() => alert("削除に失敗しました"));
+    };
 
-loadPatients();
-</script>
+    loadPatients();
+  </script>
 </head>
 <body>
 <div class="container card">
