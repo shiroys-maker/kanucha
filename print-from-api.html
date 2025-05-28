@@ -1,256 +1,117 @@
-
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
-<meta charset="utf-8"/>
-<title>診療記録</title>
-<script>
-  const loginTime = localStorage.getItem("kanuchaLogin");
-  const now = Date.now();
-  if (!loginTime || now - parseInt(loginTime) > 10 * 60 * 1000) {
-    localStorage.removeItem("kanuchaLogin");
-    window.location.href = "login.html";
-  }
-</script>
-<style>
+  <meta charset="UTF-8" />
+  <title>印刷画面</title>
+  <style>
     body {
-      font-family: sans-serif;
-      background: #f9f9f9;
+      font-family: Arial, sans-serif;
       padding: 20px;
     }
-
-    .record-container {
-      width: 794px;
-      height: 1122px;
-      margin: auto;
-      padding: 20px;
-      border: 3px solid #000;
-      background: #fff;
-      box-sizing: border-box;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
     }
-
-    .header {
-      font-size: 22px;
-      font-weight: bold;
+    h2 {
       text-align: center;
-      margin-bottom: 10px;
-      border-bottom: 2px solid #000;
-      padding-bottom: 4px;
     }
-
-    .right-align {
-      text-align: right;
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
-
-    .info-table {
+    table {
       width: 100%;
-      border: 2px solid #000;
       border-collapse: collapse;
-      margin-bottom: 20px;
+      margin-top: 20px;
     }
-
-    .info-table td {
-      border: 1px solid #000;
-      padding: 6px 10px;
-      font-size: 14px;
+    td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      vertical-align: top;
     }
-
-    .section {
-      border: 2px solid #000;
-      padding: 10px;
-      margin-bottom: 16px;
-    }
-
-    .label {
-      font-weight: bold;
-      display: inline-block;
-      font-size: 15px;
-      border-bottom: 1px solid #000;
-      margin-bottom: 6px;
-    }
-
-    .split-section {
-      display: flex;
-      gap: 10px;
-    }
-
-    .split-half {
-      flex: 1;
-    }
-
-    .split-larger {
-      flex: 1.2;
-    }
-
-    .cell-content {
-      min-height: 48px;
-      font-size: 14px;
-      line-height: 1.4;
-      overflow: hidden;
-      display: block;
-    }
-
-    .footer {
-      text-align: right;
-      font-size: 15px;
-      border-top: 1px solid #000;
-      padding-top: 10px;
-    }
-
-    .buttons {
+    .button-area {
       text-align: center;
-      margin: 20px;
+      margin-top: 20px;
     }
-
-    @media print {
-      .buttons {
-        display: none;
-      }
-
-      body {
-        margin: 0;
-        background: #fff;
-      }
-
-      .record-container {
-        transform: scale(0.97);
-        transform-origin: top center;
-      }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
     }
   </style>
-<script>
-function calcAge(dob) {
-  const birth = new Date(dob);
-  const today = new Date();
-  let age = today.getFullYear() - birth.getFullYear();
-  const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-  return age;
-}
-</script>
 </head>
 <body>
-<div class="buttons">
-<button onclick="window.print()">印刷</button>
-<button id="closeBtn">閉じる</button>
-</div>
-<div class="record-container" id="record">
-<div>
-<div class="header">診療記録</div>
-<div class="right-align">受診日: <span id="受診日"></span></div>
-<table class="info-table">
-<tr>
-<td><strong>名前</strong></td><td id="名前"></td>
-<td><strong>ID</strong></td><td id="id"></td>
-</tr>
-<tr>
-<td><strong>生年月日</strong></td><td id="生年月日"></td>
-<td><strong>性別</strong></td><td id="性別"></td>
-</tr>
-<tr>
-<td><strong>年齢</strong></td><td id="年齢"></td>
-<td></td><td></td>
-</tr>
-</table>
-<div class="section split-section">
-<div class="split-half">
-<div class="label">既往歴</div>
-<div><strong>既往歴:</strong><div class="cell-content" id="既往歴"></div></div>
-<div><strong>内服薬:</strong><div class="cell-content" id="内服薬"></div></div>
-<div><strong>アレルギー:</strong><div class="cell-content" id="アレルギー"></div></div>
-</div>
-<div class="split-half">
-<div class="label">現病歴</div>
-<div><strong>バイタル:</strong>
-<div class="cell-content">
-              血圧: <span id="血圧"></span>　
-              脈: <span id="脈"></span>　
-              体温: <span id="体温"></span>　
-              SAT: <span id="SAT"></span>
-</div>
-</div>
-<div><strong>来院の目的:</strong><div class="cell-content" id="来院の目的"></div></div>
-<div><strong>診察所見:</strong><div class="cell-content" id="診察所見"></div></div>
-</div>
-</div>
-<div class="section split-section">
-<div class="split-larger">
-<div class="label">診断と処方</div>
-<div><strong>診断名:</strong><div class="cell-content" id="診断名"></div></div>
-<div><strong>投薬内容:</strong><div class="cell-content" id="投薬内容"></div></div>
-</div>
-<div class="split-half">
-<div class="label">備考</div>
-<div class="cell-content" id="備考"></div>
-</div>
-</div>
-</div>
-<div class="footer">
-      Kanucha KIN Clinic／沖縄県名護市安部１５６−２<br/>
-      医師：廣安 俊吾
+  <div class="container">
+    <h2>印刷内容</h2>
+    <table id="recordTable"></table>
+    <div class="button-area">
+      <button onclick="window.print()">印刷</button>
+      <button onclick="window.close()">閉じる</button>
     </div>
-</div>
+  </div>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 
-<script>
-  function isAuthenticated() {
-    const auth = localStorage.getItem("auth");
-    const expires = parseInt(localStorage.getItem("auth_expire") || "0", 10);
-    return auth === "nirai43929" && Date.now() < expires;
-  }
-
-  if (!isAuthenticated()) {
-    console.log("未認証: login.htmlに戻します");
-    location.href = "login.html";
-  }
-
-  const params = new URLSearchParams(location.search);
-  const id = params.get("id");
-  console.log("取得ID:", id);
-
-  const closeBtn = document.getElementById("closeBtn");
-  if (closeBtn) {
-    closeBtn.onclick = () => {
-      console.log("閉じるボタン押下");
-      window.close();
+    const firebaseConfig = {
+      apiKey: "AIzaSyBoCiWXT9A8ndxEAKYHx-Vnog_92G9T3k8",
+      authDomain: "kanucha-api.firebaseapp.com",
+      projectId: "kanucha-api"
     };
-  }
 
-  const printBtn = document.getElementById("printBtn");
-  if (printBtn) {
-    printBtn.onclick = () => {
-      console.log("印刷ボタン押下");
-      window.print();
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // 自動ログアウト（10分）
+    let lastActivity = Date.now();
+    const idleLimit = 10 * 60 * 1000;
+    const checkIdle = () => {
+      if (Date.now() - lastActivity > idleLimit) {
+        signOut(auth).then(() => {
+          alert("セッションがタイムアウトしました。ログインし直してください。");
+          window.location.href = "login.html";
+        });
+      }
     };
-  }
+    setInterval(checkIdle, 60000);
+    document.onclick = document.onmousemove = document.onkeypress = () => lastActivity = Date.now();
 
-  fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      auth: localStorage.getItem("auth"),
-      action: "getById",
-      id: id
-    })
-  })
-  .then(res => {
-    console.log("レスポンスステータス:", res.status);
-    return res.json();
-  })
-  .then(patient => {
-    console.log("取得データ:", patient);
-    for (const key in patient) {
-      const el = document.getElementById(key);
-      if (el) el.innerText = patient[key];
-    }
-  });
-</script>
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const id = urlParams.get("id");
+      if (!id) {
+        alert("IDが指定されていません");
+        return;
+      }
+
+      try {
+        const docRef = doc(db, "patients", id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const table = document.getElementById("recordTable");
+          Object.entries(data).forEach(([key, value]) => {
+            const row = document.createElement("tr");
+            const th = document.createElement("td");
+            const td = document.createElement("td");
+            th.textContent = key;
+            td.textContent = value;
+            row.appendChild(th);
+            row.appendChild(td);
+            table.appendChild(row);
+          });
+        } else {
+          alert("データが存在しません");
+        }
+      } catch (e) {
+        console.error("データの取得エラー:", e);
+        alert("データの取得に失敗しました");
+      }
+    });
+  </script>
 </body>
 </html>
