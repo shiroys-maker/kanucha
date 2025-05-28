@@ -74,10 +74,13 @@
     import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBoCiWXT9A8ndxEAKYHx-Vnog_92G9T3k8",
-      authDomain: "kanucha-api.firebaseapp.com",
-      projectId: "kanucha-api",
-    };
+  apiKey: "AIzaSyBoCiWXT9A8ndxEAKYHx-Vnog_92G9T3k8",
+  authDomain: "kanucha-api.firebaseapp.com",
+  projectId: "kanucha-api",
+  storageBucket: "kanucha-api.appspot.com",
+  messagingSenderId: "587960232558",
+  appId: "1:587960232558:web:e4e9f55caac7090a30947f"
+};
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
