@@ -63,19 +63,17 @@
   </div>
 
   <script>
-    document.getElementById("login-form").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const id = document.getElementById("login-id").value.trim();
-      const pw = document.getElementById("login-password").value.trim();
-      if (id === "kanucha" && pw === "nirai43929") {
-        localStorage.setItem("auth", "true");
-        const expire = new Date().getTime() + 10 * 60 * 1000;
-        localStorage.setItem("auth_expire", expire);
-        window.location.href = "list.html";
-      } else {
-        alert("IDまたはパスワードが正しくありません");
-      }
-    });
-  </script>
+  document.getElementById("login-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const id = document.getElementById("login-id").value.trim();
+    const pw = document.getElementById("login-password").value.trim();
+    if (id === "kanucha" && pw === "nirai43929") {
+      localStorage.setItem("kanuchaLogin", Date.now().toString());
+      window.location.href = "list.html";
+    } else {
+      alert("IDまたはパスワードが正しくありません");
+    }
+  });
+</script>
 </body>
 </html>
