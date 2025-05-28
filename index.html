@@ -1,19 +1,23 @@
-
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
 <meta charset="utf-8"/>
 <title>患者フォーム</title>
+<script>
+  const loginTime = localStorage.getItem("kanuchaLogin");
+  const now = Date.now();
+  if (!loginTime || now - parseInt(loginTime) > 10 * 60 * 1000) {
+    localStorage.removeItem("kanuchaLogin");
+    window.location.href = "login.html";
+  }
+</script>
 <style>
-    
   body {
     font-family: 'Helvetica Neue', sans-serif;
     background: #eef5f9;
     padding: 24px;
     color: #333;
   }
-
   .card {
     background: #fff;
     padding: 20px;
@@ -22,7 +26,6 @@
     max-width: 900px;
     margin: auto;
   }
-
   button, a.button {
     background: #007acc;
     color: white;
@@ -34,151 +37,96 @@
     text-decoration: none;
     margin: 5px;
   }
-
   button:hover, a.button:hover {
     background: #005fa3;
   }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 16px;
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
   }
+  .short-input { width: 100px; }
+  textarea { width: 100%; }
+  .double-height { height: 120px; }
+</style>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-  th, td {
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: left;
-  }
+  const firebaseConfig = {
+    apiKey: "AIzaSyBoCiWXT9A8ndxEAKYHx-Vnog_92G9T3k8",
+    authDomain: "kanucha-api.firebaseapp.com",
+    projectId: "kanucha-api",
+  };
 
-  th {
-    background: #d9ecf7;
-  }
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
 
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 12px;
+  document.addEventListener("DOMContentLoaded", async () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get("id");
+    const form = document.getElementById("form");
+
+    const calcAge = (dob) => {
+      const birth = new Date(dob);
+      const today = new Date();
+      let age = today.getFullYear() - birth.getFullYear();
+      const m = today.getMonth() - birth.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+      return age;
+    };
+
+    const dobInput = form["生年月日"];
+    const ageInput = form["年齢"];
+    if (dobInput && ageInput) {
+      dobInput.addEventListener("change", () => {
+        ageInput.value = calcAge(dobInput.value);
+      });
     }
-    .short-input { width: 100px; }
-    textarea { width: 100%; }
-    .double-height { height: 120px; }
-  </style>
-<script>
-function calcAge(birthday) {
-  if (!birthday) return "";
-  const today = new Date();
-  const birth = new Date(birthday);
-  let age = today.getFullYear() - birth.getFullYear();
-  const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-    age--;
-  }
-  return age;
-}
 
-  
+    const visitInput = form["受診日"];
+    if (visitInput && !visitInput.value) {
+      visitInput.value = new Date().toISOString().split("T")[0];
+    }
 
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "add",
-        ...data
-      })
-    })
-    .then(res => res.json())
-    .then(() => {
+    if (id) {
+      const docRef = doc(db, "patients", id);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        for (const key in data) {
+          const el = form.querySelector(`[name='${key}']`);
+          if (el) el.value = data[key];
+        }
+        ageInput.value = calcAge(data["生年月日"]);
+        document.getElementById("printLink").href = `print-from-api.html?id=${id}`;
+      }
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = {};
+      new FormData(form).forEach((value, key) => formData[key] = value);
+      if (formData["生年月日"]) formData["年齢"] = calcAge(formData["生年月日"]);
+      await setDoc(doc(db, "patients", formData.id || crypto.randomUUID()), formData);
       alert("保存しました");
       location.href = "list.html";
-    })
-    .catch(() => alert("保存に失敗しました"));
-  });
-</script><script>
-document.addEventListener("DOMContentLoaded", function() {
-  // 年齢自動計算
-  const birthdayInput = document.querySelector('[name="生年月日"]');
-  const ageInput = document.querySelector('[name="年齢"]');
-  if (birthdayInput && ageInput) {
-    birthdayInput.addEventListener("change", function() {
-      ageInput.value = calcAge(birthdayInput.value);
     });
-  }
-
-  // 受診日を本日の日付に設定
-  const visitDateInput = document.querySelector('[name="受診日"]');
-  if (visitDateInput && !visitDateInput.value) {
-    const today = new Date().toISOString().split("T")[0];
-    visitDateInput.value = today;
-  }
-});
-
-  
-
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "add",
-        ...data
-      })
-    })
-    .then(res => res.json())
-    .then(() => {
-      alert("保存しました");
-      location.href = "list.html";
-    })
-    .catch(() => alert("保存に失敗しました"));
   });
-</script><script>
-function calcAge(dob) {
-  const birth = new Date(dob);
-  const today = new Date();
-  let age = today.getFullYear() - birth.getFullYear();
-  const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-  return age;
-}
 </script>
 </head>
 <body>
-<script>
-    if (localStorage.getItem("auth") !== "nirai43929") {
-      location.href = "login.html";
-    }
-  
-  
-
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "add",
-        ...data
-      })
-    })
-    .then(res => res.json())
-    .then(() => {
-      alert("保存しました");
-      location.href = "list.html";
-    })
-    .catch(() => alert("保存に失敗しました"));
-  });
-</script>
 <div class="card">
 <h2>患者情報</h2>
 <form id="form">
 <div class="row">
-        ID: <input name="id" required=""/>
+        ID: <input name="id" required/>
         名前: <input name="名前"/>
         生年月日: <input name="生年月日" type="date"/>
         性別:
         <select name="性別"><option>男性</option><option>女性</option></select>
-        年齢: <input class="short-input" disabled="" name="年齢"/>
+        年齢: <input class="short-input" disabled name="年齢"/>
 </div>
 <div class="row">
         受診日: <input class="short-input" name="受診日" type="date"/>
@@ -190,231 +138,19 @@ function calcAge(dob) {
         SAT: <input class="short-input" name="SAT"/>
 </div>
 <div>来院の目的 (看護師入力): <textarea class="double-height" name="来院の目的"></textarea></div>
-<div>既往歴: <textarea class="normal-height" name="既往歴" rows="4"></textarea></div>
-<div>内服薬: <textarea class="normal-height" name="内服薬" rows="4"></textarea></div>
-<div>アレルギー: <textarea class="normal-height" name="アレルギー"></textarea></div>
+<div>既往歴: <textarea name="既往歴" rows="4"></textarea></div>
+<div>内服薬: <textarea name="内服薬" rows="4"></textarea></div>
+<div>アレルギー: <textarea name="アレルギー"></textarea></div>
 <div>診察所見 (医師入力): <textarea class="double-height" name="診察所見"></textarea></div>
-<div>診断名: <textarea class="normal-height" name="診断名"></textarea></div>
+<div>診断名: <textarea name="診断名"></textarea></div>
 <div>投薬内容: <textarea class="double-height" name="投薬内容"></textarea></div>
-<div>備考: <textarea class="normal-height" name="備考"></textarea></div>
+<div>備考: <textarea name="備考"></textarea></div>
 <div class="row">
 <button type="submit">更新</button>
-<button onclick="location.href='list.html'" type="button">一覧に戻る</button>
+<button type="button" onclick="location.href='list.html'">一覧に戻る</button>
 <a class="button" href="#" id="printLink" target="_blank">印刷</a>
 </div>
 </form>
 </div>
-<script>
-const urlParams = new URLSearchParams(window.location.search);
-const id = urlParams.get("id");
-
-if (id) {
-  fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      auth: localStorage.getItem("auth"),
-      action: "getById",
-      id: id
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    for (const name in data) {
-      if (form[name]) form[name].value = data[name];
-    }
-    form["年齢"].value = calcAge(data["生年月日"]);
-    document.getElementById("printLink").href = `print-from-api.html?id=${data.id}`;
-  });
-}
-
-  
-
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "add",
-        ...data
-      })
-    })
-    .then(res => res.json())
-    .then(() => {
-      alert("保存しました");
-      location.href = "list.html";
-    })
-    .catch(() => alert("保存に失敗しました"));
-  });
-</script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const id = urlParams.get("id");
-  const form = document.querySelector("form");
-
-  const calcAge = (dob) => {
-    const birth = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-    return age;
-  };
-
-  const dobInput = document.getElementById("生年月日");
-  const ageInput = document.getElementById("年齢");
-  if (dobInput && ageInput) {
-    dobInput.addEventListener("change", () => {
-      ageInput.value = calcAge(dobInput.value);
-    });
-  }
-
-  const visitDateInput = document.getElementById("受診日");
-  if (visitDateInput) {
-    visitDateInput.value = new Date().toISOString().split("T")[0];
-  }
-
-  if (id) {
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "getById",
-        id: id
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      for (const name in data) {
-        if (form[name]) form[name].value = data[name];
-      }
-      if (dobInput && ageInput) {
-        ageInput.value = calcAge(dobInput.value);
-      }
-    });
-  }
-
-  
-});
-
-  
-
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "add",
-        ...data
-      })
-    })
-    .then(res => res.json())
-    .then(() => {
-      alert("保存しました");
-      location.href = "list.html";
-    })
-    .catch(() => alert("保存に失敗しました"));
-  });
-</script>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const id = urlParams.get("id");
-  const form = document.querySelector("form");
-
-  const calcAge = (dob) => {
-    const birth = new Date(dob);
-    const today = new Date();
-    let age = today.getFullYear() - birth.getFullYear();
-    const m = today.getMonth() - birth.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-    return age;
-  };
-
-  const dobInput = document.getElementById("生年月日");
-  const ageInput = document.getElementById("年齢");
-  if (dobInput && ageInput) {
-    dobInput.addEventListener("change", () => {
-      ageInput.value = calcAge(dobInput.value);
-    });
-  }
-
-  const visitInput = document.querySelector('[name="受診日"]');
-  if (visitInput && !visitInput.value) {
-    visitInput.value = new Date().toISOString().split("T")[0];
-  }
-
-  if (id) {
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "getById",
-        id: id
-      })
-    })
-    .then(res => res.json())
-    .then(data => {
-      for (const key in data) {
-
-if (id && document.getElementById("printLink")) {
-  document.getElementById("printLink").href =
-    `${location.origin}${location.pathname.replace("index.html", "")}print-from-api.html?id=${id}`;
-}
-
-        const el = form.querySelector(`[name='${key}']`);
-        if (el) el.value = data[key];
-      }
-      if (dobInput && ageInput) {
-        ageInput.value = calcAge(dobInput.value);
-      }
-    });
-  }
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    const data = {
-      id: form["id"]?.value || "",
-      名前: form["名前"]?.value || "",
-      生年月日: form["生年月日"]?.value || "",
-      性別: form["性別"]?.value || "",
-      受診日: form["受診日"]?.value || "",
-      血圧: form["血圧"]?.value || "",
-      脈: form["脈"]?.value || "",
-      体温: form["体温"]?.value || "",
-      SAT: form["SAT"]?.value || "",
-      来院の目的: form["来院の目的"]?.value || "",
-      既往歴: form["既往歴"]?.value || "",
-      内服薬: form["内服薬"]?.value || "",
-      アレルギー: form["アレルギー"]?.value || "",
-      診察所見: form["診察所見"]?.value || "",
-      診断名: form["診断名"]?.value || "",
-      投薬内容: form["投薬内容"]?.value || "",
-      備考: form["備考"]?.value || ""
-    };
-
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        auth: localStorage.getItem("auth"),
-        action: "add",
-        ...data
-      })
-    })
-    .then(res => res.json())
-    .then(() => {
-      alert("保存しました");
-      location.href = "list.html";
-    })
-    .catch(() => alert("保存に失敗しました"));
-  });
-});
-</script>
-
 </body>
 </html>

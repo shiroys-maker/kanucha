@@ -5,6 +5,14 @@
 <head>
 <meta charset="utf-8"/>
 <title>診療記録</title>
+<script>
+  const loginTime = localStorage.getItem("kanuchaLogin");
+  const now = Date.now();
+  if (!loginTime || now - parseInt(loginTime) > 10 * 60 * 1000) {
+    localStorage.removeItem("kanuchaLogin");
+    window.location.href = "login.html";
+  }
+</script>
 <style>
     body {
       font-family: sans-serif;
