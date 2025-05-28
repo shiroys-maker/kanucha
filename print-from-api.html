@@ -6,11 +6,15 @@
 <meta charset="utf-8"/>
 <title>診療記録</title>
 <script>
-  const loginTime = localStorage.getItem("kanuchaLogin");
-  const now = Date.now();
-  if (!loginTime || now - parseInt(loginTime) > 10 * 60 * 1000) {
-    localStorage.removeItem("kanuchaLogin");
+  const isAuthed = localStorage.getItem("auth") === "true";
+  const expire = parseInt(localStorage.getItem("auth_expire"), 10);
+
+  if (!isAuthed || isNaN(expire) || Date.now() > expire) {
+    localStorage.removeItem("auth");
+    localStorage.removeItem("auth_expire");
     window.location.href = "login.html";
+  } else {
+    localStorage.setItem("auth_expire", Date.now() + 10 * 60 * 1000); // 延長
   }
 </script>
 <style>
