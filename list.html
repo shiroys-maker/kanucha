@@ -1,142 +1,169 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>患者一覧</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        padding: 10px;
-      }
-      h1 {
-        text-align: center;
-      }
-      table {
-        border-collapse: collapse;
-        width: 100%;
-        table-layout: fixed;
-        word-wrap: break-word;
-      }
-      th,
-      td {
-        border: 1px solid #ccc;
-        padding: 4px;
-        text-align: center;
-        font-size: 12px;
-      }
-      th:nth-child(3),
-      td:nth-child(3) {
-        width: 60px;
-      }
-      th:nth-child(4),
-      td:nth-child(4) {
-        width: 50px;
-      }
-      th:nth-child(5),
-      td:nth-child(5) {
-        width: 90px;
-      }
-      th:nth-child(6),
-      td:nth-child(6) {
-        width: 90px;
-      }
-      a.button,
-      button {
-        padding: 2px 5px;
-        margin: 1px;
-        font-size: 11px;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>患者一覧</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>名前</th>
-          <th>性別</th>
-          <th>年齢</th>
-          <th>受診日</th>
-          <th>操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- レコードがここに追加されます -->
-      </tbody>
-    </table>
+<head>
+<meta charset="utf-8"/>
+<title>患者一覧</title>
+<script>
+  const isAuthed = localStorage.getItem("auth") === "true";
+  const expire = parseInt(localStorage.getItem("auth_expire"), 10);
 
-    <!-- Firebase SDK -->
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-      import {
-        getFirestore,
-        collection,
-        getDocs,
-        deleteDoc,
-        doc
-      } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+  if (!isAuthed || isNaN(expire) || Date.now() > expire) {
+    localStorage.removeItem("auth");
+    localStorage.removeItem("auth_expire");
+    window.location.href = "login.html";
+  } else {
+    localStorage.setItem("auth_expire", Date.now() + 10 * 60 * 1000); // 延長
+  }
+</script>
+<style>
+body {
+  font-family: 'Helvetica Neue', sans-serif;
+  background: #eef5f9;
+  padding: 24px;
+  color: #333;
+  margin: 0;
+}
 
-      const firebaseConfig = {
-        apiKey: "AIzaSyBoCiWXT9A8ndxEAKYHx-Vnog_92G9T3k8",
-        authDomain: "kanucha-api.firebaseapp.com",
-        projectId: "kanucha-api",
-      };
+.container {
+  max-width: 100%;
+  margin: auto;
+}
 
-      const app = initializeApp(firebaseConfig);
-      const db = getFirestore(app);
+.card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
 
-      document.addEventListener("DOMContentLoaded", () => {
-        const tbody = document.querySelector("tbody");
+button, a.button {
+  background: #007acc;
+  color: white;
+  padding: 8px 16px;
+  font-size: 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+  margin: 5px;
+}
 
-        function calculateAge(birthdateStr, visitDateStr) {
-          const birthdate = new Date(birthdateStr);
-          const visitDate = visitDateStr ? new Date(visitDateStr) : new Date();
-          let age = visitDate.getFullYear() - birthdate.getFullYear();
-          const m = visitDate.getMonth() - birthdate.getMonth();
-          if (m < 0 || (m === 0 && visitDate.getDate() < birthdate.getDate())) {
-            age--;
-          }
-          return age;
-        }
+button:hover, a.button:hover {
+  background: #005fa3;
+}
 
-        function loadPatients() {
-          getDocs(collection(db, "patients"))
-            .then(snapshot => {
-              tbody.innerHTML = "";
-              snapshot.forEach(docSnap => {
-                const row = docSnap.data();
-                const age = calculateAge(row['生年月日'], row['受診日']);
-                const tr = document.createElement("tr");
-                tr.innerHTML = `
-                  <td>${row.id || ''}</td>
-                  <td>${row.名前 || ''}</td>
-                  <td>${row.性別 || ''}</td>
-                  <td>${age}</td>
-                  <td>${row.受診日 || ''}</td>
-                  <td>
-                    <a class="button" href="index.html?id=${row.id}">編集</a>
-                    <button class="delete-btn" onclick="deletePatient('${docSnap.id}')">削除</button>
-                  </td>
-                `;
-                tbody.appendChild(tr);
-              });
-            });
-        }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+}
 
-        window.deletePatient = function(id) {
-          if (!confirm("本当に削除しますか？")) return;
-          deleteDoc(doc(db, "patients", id))
-            .then(() => {
-              alert("削除しました");
-              loadPatients();
-            })
-            .catch(() => alert("削除に失敗しました"));
-        };
+th, td {
+  border: 1px solid #999;
+  padding: 10px;
+  text-align: left;
+  word-wrap: break-word;
+}
 
-        loadPatients();
+th {
+  background: #d9ecf7;
+}
+
+th:nth-child(5), td:nth-child(5) { width: 6em; }
+
+.delete-btn {
+  color: white;
+  background-color: red;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+}
+</style>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+  apiKey: "AIzaSyBoCiWXT9A8ndxEAKYHx-Vnog_92G9T3k8",
+  authDomain: "kanucha-api.firebaseapp.com",
+  projectId: "kanucha-api",
+  storageBucket: "kanucha-api.appspot.com",
+  messagingSenderId: "587960232558",
+  appId: "1:587960232558:web:e4e9f55caac7090a30947f",
+  measurementId: "G-E0TTRGCBKP"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  function calculateAge(birthdateStr, visitDateStr) {
+    const birthdate = new Date(birthdateStr);
+    const visitDate = visitDateStr ? new Date(visitDateStr) : new Date();
+    let age = visitDate.getFullYear() - birthdate.getFullYear();
+    const m = visitDate.getMonth() - birthdate.getMonth();
+    if (m < 0 || (m === 0 && visitDate.getDate() < birthdate.getDate())) {
+      age--;
+    }
+    return age;
+  }
+
+  const tbody = document.querySelector("tbody");
+
+  function loadPatients() {
+    getDocs(collection(db, "patients"))
+      .then(snapshot => {
+        tbody.innerHTML = "";
+        snapshot.forEach(docSnap => {
+          const row = docSnap.data();
+          const age = calculateAge(row['生年月日'], row['受診日']);
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${row.id || ''}</td>
+            <td>${row.名前 || ''}</td>
+            <td>${row.性別 || ''}</td>
+            <td>${age}</td>
+            <td>${row.受診日 || ''}</td>
+            <td>
+              <a class="button" href="index.html?id=${row.id}">編集</a>
+              <button class="delete-btn" onclick="deletePatient('${docSnap.id}')">削除</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
       });
-    </script>
-  </body>
+  }
+
+  window.deletePatient = function(id) {
+    if (!confirm("本当に削除しますか？")) return;
+    deleteDoc(doc(db, "patients", id))
+      .then(() => {
+        alert("削除しました");
+        loadPatients();
+      })
+      .catch(() => alert("削除に失敗しました"));
+  };
+
+  loadPatients();
+</script>
+</head>
+<body>
+<div class="container card">
+  <h1>患者一覧</h1>
+  <button onclick="location.href='index.html'">新規登録</button>
+  <table id="patientTable">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>名前</th>
+        <th>性別</th>
+        <th>年齢</th>
+        <th>受診日</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+</body>
 </html>
