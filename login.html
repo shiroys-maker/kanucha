@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -60,8 +59,9 @@
       const pw = document.getElementById("login-password").value.trim();
       if (id === "kanucha" && pw === "nirai43929") {
         localStorage.setItem("auth", "nirai43929");
+        // Set expiration for 10 minutes (600000 ms)
         const expire = new Date().getTime() + 10 * 60 * 1000;
-        localStorage.setItem("auth_expire", expire);
+        localStorage.setItem("auth_expire", expire.toString());
         window.location.href = "list.html";
       } else {
         alert("IDまたはパスワードが正しくありません");

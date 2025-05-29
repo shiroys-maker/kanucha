@@ -1,6 +1,4 @@
-
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
 <meta charset="utf-8"/>
@@ -67,15 +65,21 @@ th {
   cursor: pointer;
 }
 
-  width: 60px; /* 性別 */
+/* These width declarations in style were incomplete in the original, completed them */
+th:nth-child(3), td:nth-child(3) { /* 性別 */
+  width: 60px;
 }
-  width: 60px; /* 年齢 */
+th:nth-child(4), td:nth-child(4) { /* 年齢 */
+  width: 60px;
 }
 
 
 table { table-layout: auto; }
-th:nth-child(5), td:nth-child(5) { width: 6em; }  /* 年齢欄 */</style>
+th:nth-child(5), td:nth-child(5) { width: 6em; }  /* 年齢欄 - This seems to be a duplicate or conflicting rule for age column width. Kept as is. */
+</style>
 <script>
+// This function is defined but not directly used to populate the age column in this file.
+// Age is populated from row.年齢 coming from the API.
 function calcAge(dob) {
   const birth = new Date(dob);
   const today = new Date();
@@ -129,6 +133,9 @@ function calcAge(dob) {
     })
     .then(res => {
       console.log("レスポンスステータス:", res.status);
+      if (!res.ok) { // Handle HTTP errors
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       return res.json();
     })
     .then(data => {
@@ -137,11 +144,11 @@ function calcAge(dob) {
       for (const row of data) {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${row.id}</td>
-          <td>${row.名前}</td>
-          <td>${row.性別}</td>
-          <td>${row.年齢}</td>
-          <td>${row.受診日}</td>
+          <td>${row.id || ''}</td>
+          <td>${row.名前 || ''}</td>
+          <td>${row.性別 || ''}</td>
+          <td>${row.年齢 || ''}</td> 
+          <td>${row.受診日 || ''}</td>
           <td>
             <a class="button" href="index.html?id=${row.id}">編集</a>
             <button class="delete-btn" onclick="deletePatient('${row.id}')">削除</button>
@@ -149,6 +156,10 @@ function calcAge(dob) {
         `;
         tbody.appendChild(tr);
       }
+    })
+    .catch(error => { // Catch fetch or JSON parsing errors
+        console.error("患者データの読み込みに失敗しました:", error);
+        alert("患者データの読み込みに失敗しました。");
     });
   }
 
@@ -163,12 +174,25 @@ function calcAge(dob) {
         id: id
       })
     })
-    .then(res => res.json())
-    .then(() => {
-      alert("削除しました");
-      loadPatients();
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      return res.json();
     })
-    .catch(() => alert("削除に失敗しました"));
+    .then((data) => {
+      // Assuming the API returns { result: "deleted" } or similar on success
+      if (data.result === "deleted") {
+        alert("削除しました");
+        loadPatients();
+      } else {
+        throw new Error(data.error || "削除レスポンスが不正です");
+      }
+    })
+    .catch((error) => {
+        console.error("削除に失敗しました:", error);
+        alert("削除に失敗しました。");
+    });
   }
 
   loadPatients();

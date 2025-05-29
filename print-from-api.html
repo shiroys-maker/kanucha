@@ -1,6 +1,4 @@
-
 <!DOCTYPE html>
-
 <html lang="ja">
 <head>
 <meta charset="utf-8"/>
@@ -13,14 +11,14 @@
     }
 
     .record-container {
-      width: 794px;
-      height: 1122px;
+      width: 794px; /* A4 width approximation */
+      min-height: 1000px; /* A4 height approximation, adjust as needed */
       margin: auto;
-      padding: 20px;
+      padding: 40px; /* Standard A4 margins ~2cm */
       border: 3px solid #000;
       background: #fff;
       box-sizing: border-box;
-      overflow: hidden;
+      overflow: hidden; /* Content should ideally not overflow */
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -52,7 +50,12 @@
       border: 1px solid #000;
       padding: 6px 10px;
       font-size: 14px;
+      word-break: break-word; /* Ensure long text wraps */
     }
+    .info-table td:nth-child(odd) { /* Labels in bold */
+        font-weight: bold;
+    }
+
 
     .section {
       border: 2px solid #000;
@@ -62,38 +65,49 @@
 
     .label {
       font-weight: bold;
-      display: inline-block;
+      display: block; /* Changed to block for better layout */
       font-size: 15px;
       border-bottom: 1px solid #000;
       margin-bottom: 6px;
+      padding-bottom: 2px; /* Added padding */
     }
 
     .split-section {
       display: flex;
-      gap: 10px;
+      gap: 10px; /* Space between split sections */
     }
 
     .split-half {
       flex: 1;
+      min-width: 0; /* Allow shrinking */
     }
 
     .split-larger {
       flex: 1.2;
+      min-width: 0; /* Allow shrinking */
     }
 
     .cell-content {
       min-height: 48px;
       font-size: 14px;
       line-height: 1.4;
-      overflow: hidden;
-      display: block;
+      padding: 4px 0; /* Added padding */
+      white-space: pre-wrap; /* Preserve whitespace and wrap */
+      word-break: break-word; /* Ensure long text wraps */
+      display: block; /* Ensure it behaves like a block */
     }
+    
+    .field-label { /* For inline labels within cell-content if needed */
+        font-weight: bold;
+    }
+
 
     .footer {
       text-align: right;
       font-size: 15px;
       border-top: 1px solid #000;
       padding-top: 10px;
+      margin-top: auto; /* Push footer to the bottom */
     }
 
     .buttons {
@@ -108,23 +122,30 @@
 
       body {
         margin: 0;
+        padding: 0;
         background: #fff;
       }
 
       .record-container {
-        transform: scale(0.97);
+        transform: scale(1); /* Adjust scale for printing if necessary, e.g. 0.97 */
         transform-origin: top center;
+        margin: 0 auto; /* Center on page */
+        border: none; /* Remove border for printing */
+        box-shadow: none; /* Remove shadow for printing */
+        height: auto; /* Allow content to define height */
       }
     }
   </style>
 <script>
+// This function is defined but the age is primarily expected to come from patient.年齢
 function calcAge(dob) {
+  if (!dob) return "";
   const birth = new Date(dob);
   const today = new Date();
   let age = today.getFullYear() - birth.getFullYear();
   const m = today.getMonth() - birth.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
-  return age;
+  return age >= 0 ? age : "";
 }
 </script>
 </head>
@@ -134,56 +155,55 @@ function calcAge(dob) {
 <button id="closeBtn">閉じる</button>
 </div>
 <div class="record-container" id="record">
-<div>
+<div> {/* Content wrapper for flex column */}
 <div class="header">診療記録</div>
 <div class="right-align">受診日: <span id="受診日"></span></div>
 <table class="info-table">
 <tr>
-<td><strong>名前</strong></td><td id="名前"></td>
-<td><strong>ID</strong></td><td id="id"></td>
+<td>名前</td><td id="名前" colspan="3"></td> {/* Name takes more space */}
 </tr>
 <tr>
-<td><strong>生年月日</strong></td><td id="生年月日"></td>
-<td><strong>性別</strong></td><td id="性別"></td>
+<td>ID</td><td id="id"></td>
+<td>性別</td><td id="性別"></td>
 </tr>
 <tr>
-<td><strong>年齢</strong></td><td id="年齢"></td>
-<td></td><td></td>
+<td>生年月日</td><td id="生年月日"></td>
+<td>年齢</td><td id="年齢"></td>
 </tr>
 </table>
 <div class="section split-section">
 <div class="split-half">
-<div class="label">既往歴</div>
-<div><strong>既往歴:</strong><div class="cell-content" id="既往歴"></div></div>
-<div><strong>内服薬:</strong><div class="cell-content" id="内服薬"></div></div>
-<div><strong>アレルギー:</strong><div class="cell-content" id="アレルギー"></div></div>
+<div class="label">既往歴・アレルギー等</div>
+<div><span class="field-label">既往歴:</span><div class="cell-content" id="既往歴"></div></div>
+<div><span class="field-label">内服薬:</span><div class="cell-content" id="内服薬"></div></div>
+<div><span class="field-label">アレルギー:</span><div class="cell-content" id="アレルギー"></div></div>
 </div>
 <div class="split-half">
 <div class="label">現病歴</div>
-<div><strong>バイタル:</strong>
+<div><span class="field-label">バイタル:</span>
 <div class="cell-content">
               血圧: <span id="血圧"></span>　
-              脈: <span id="脈"></span>　
+              脈: <span id="脈"></span><br/> {/* Break line for better readability */}
               体温: <span id="体温"></span>　
               SAT: <span id="SAT"></span>
 </div>
 </div>
-<div><strong>来院の目的:</strong><div class="cell-content" id="来院の目的"></div></div>
-<div><strong>診察所見:</strong><div class="cell-content" id="診察所見"></div></div>
+<div><span class="field-label">来院の目的:</span><div class="cell-content" id="来院の目的"></div></div>
+<div><span class="field-label">診察所見:</span><div class="cell-content" id="診察所見"></div></div>
 </div>
 </div>
 <div class="section split-section">
 <div class="split-larger">
 <div class="label">診断と処方</div>
-<div><strong>診断名:</strong><div class="cell-content" id="診断名"></div></div>
-<div><strong>投薬内容:</strong><div class="cell-content" id="投薬内容"></div></div>
+<div><span class="field-label">診断名:</span><div class="cell-content" id="診断名"></div></div>
+<div><span class="field-label">投薬内容:</span><div class="cell-content" id="投薬内容"></div></div>
 </div>
 <div class="split-half">
 <div class="label">備考</div>
 <div class="cell-content" id="備考"></div>
 </div>
 </div>
-</div>
+</div> {/* End Content wrapper */}
 <div class="footer">
       Kanucha KIN Clinic／沖縄県名護市安部１５６−２<br/>
       医師：廣安 俊吾
@@ -204,8 +224,8 @@ function calcAge(dob) {
   }
 
   const params = new URLSearchParams(location.search);
-  const id = params.get("id");
-  console.log("取得ID:", id);
+  const patientId = params.get("id"); // Renamed to avoid conflict with element IDs
+  console.log("取得ID:", patientId);
 
   const closeBtn = document.getElementById("closeBtn");
   if (closeBtn) {
@@ -215,34 +235,63 @@ function calcAge(dob) {
     };
   }
 
-  const printBtn = document.getElementById("printBtn");
-  if (printBtn) {
-    printBtn.onclick = () => {
-      console.log("印刷ボタン押下");
-      window.print();
-    };
-  }
+  // The print button in HTML directly calls window.print(), so JS for it is not strictly needed unless for logging.
+  // const printBtn = document.getElementById("printBtn"); // Assuming a button with id="printBtn" if needed
+  // if (printBtn) {
+  //   printBtn.onclick = () => {
+  //     console.log("印刷ボタン押下");
+  //     window.print();
+  //   };
+  // }
 
-  fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      auth: localStorage.getItem("auth"),
-      action: "getById",
-      id: id
+  if (patientId) {
+    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        auth: localStorage.getItem("auth"),
+        action: "getById",
+        id: patientId
+      })
     })
-  })
-  .then(res => {
-    console.log("レスポンスステータス:", res.status);
-    return res.json();
-  })
-  .then(patient => {
-    console.log("取得データ:", patient);
-    for (const key in patient) {
-      const el = document.getElementById(key);
-      if (el) el.innerText = patient[key];
-    }
-  });
+    .then(res => {
+      console.log("レスポンスステータス:", res.status);
+      if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+      }
+      return res.json();
+    })
+    .then(patient => {
+      console.log("取得データ:", patient);
+      if (patient.error) {
+          throw new Error(patient.error);
+      }
+      for (const key in patient) {
+        const el = document.getElementById(key);
+        if (el) {
+          // For date fields from API, ensure only date part is shown if time is included
+          if ((key === "受診日" || key === "生年月日") && patient[key]) {
+             el.innerText = patient[key].split("T")[0];
+          } else {
+             el.innerText = patient[key] || ''; // Set to empty string if null/undefined
+          }
+        }
+      }
+      // If age is not directly in patient data or needs recalculation (though index.html saves it)
+      // const ageEl = document.getElementById("年齢");
+      // if (ageEl && patient["生年月日"]) {
+      //   ageEl.innerText = calcAge(patient["生年月日"]);
+      // } else if (ageEl && patient["年齢"]) {
+      //   ageEl.innerText = patient["年齢"];
+      // }
+    })
+    .catch(error => {
+        console.error("患者データの読み込みに失敗しました:", error);
+        alert("患者データの読み込みに失敗しました: " + error.message);
+    });
+  } else {
+    alert("患者IDが指定されていません。");
+  }
 </script>
 </body>
 </html>
