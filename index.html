@@ -102,11 +102,11 @@
 <div>来院の目的 (看護師入力): <textarea class="double-height" name="来院の目的"></textarea></div>
 <div>既往歴: <textarea class="normal-height" name="既往歴" rows="4"></textarea></div>
 <div>内服薬: <textarea class="normal-height" name="内服薬" rows="4"></textarea></div>
-<div>アレルギー: <textarea class="normal-height" name="アレルギー" rows="3"></textarea></div> {/* Added rows for consistency */}
+<div>アレルギー: <textarea class="normal-height" name="アレルギー" rows="3"></textarea></div> {/* This comment was removed from the next line if present in actual code */}
 <div>診察所見 (医師入力): <textarea class="double-height" name="診察所見"></textarea></div>
-<div>診断名: <textarea class="normal-height" name="診断名" rows="3"></textarea></div> {/* Added rows for consistency */}
+<div>診断名: <textarea class="normal-height" name="診断名" rows="3"></textarea></div> {/* This comment was removed from the next line if present in actual code */}
 <div>投薬内容: <textarea class="double-height" name="投薬内容"></textarea></div>
-<div>備考: <textarea class="normal-height" name="備考" rows="3"></textarea></div> {/* Added rows for consistency */}
+<div>備考: <textarea class="normal-height" name="備考" rows="3"></textarea></div> {/* This comment was removed from the next line if present in actual code */}
 <div class="row">
 <button type="submit">更新</button>
 <button onclick="location.href='list.html'" type="button">一覧に戻る</button>
@@ -117,7 +117,7 @@
 
 <script>
 // Consolidated script block
-function calcAge(dob) { // Ensure calcAge is defined in this scope or globally
+function calcAge(dob) {
   if (!dob) return "";
   const birth = new Date(dob);
   const today = new Date();
@@ -126,11 +126,11 @@ function calcAge(dob) { // Ensure calcAge is defined in this scope or globally
   if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
     age--;
   }
-  return age >= 0 ? age : ""; // Return empty if age is negative (e.g. future date)
+  return age >= 0 ? age : "";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("form"); // Use getElementById for the form
+  const form = document.getElementById("form");
   const urlParams = new URLSearchParams(window.location.search);
   const id = urlParams.get("id");
 
@@ -139,19 +139,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const visitDateInput = form.querySelector('[name="受診日"]');
   const printLink = document.getElementById("printLink");
 
-  // Age calculation on date of birth change
   if (dobInput && ageInput) {
     dobInput.addEventListener("change", () => {
       ageInput.value = calcAge(dobInput.value);
     });
   }
 
-  // Set visit date to today if not editing and not already set
-  if (visitDateInput && !id && !visitDateInput.value) { // Only set for new entries
+  if (visitDateInput && !id && !visitDateInput.value) {
     visitDateInput.value = new Date().toISOString().split("T")[0];
   }
 
-  // Load data if ID is present (editing mode)
   if (id) {
     fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
       method: "POST",
@@ -167,29 +164,24 @@ document.addEventListener("DOMContentLoaded", () => {
         return res.json();
     })
     .then(data => {
-      if (data.error) throw new Error(data.error); // API specific error
+      if (data.error) throw new Error(data.error);
       for (const key in data) {
         const el = form.querySelector(`[name='${key}']`);
         if (el) {
-          // For date inputs, ensure the format is yyyy-mm-dd
           if (el.type === 'date' && data[key]) {
-            el.value = data[key].split('T')[0]; // Assuming date might come as ISOString
+            el.value = data[key].split('T')[0];
           } else {
             el.value = data[key];
           }
         }
       }
-      // Recalculate age based on fetched DOB
       if (dobInput && ageInput && data["生年月日"]) {
         ageInput.value = calcAge(data["生年月日"]);
-      } else if (ageInput && data["年齢"]) { // Fallback to stored age if DOB is missing
+      } else if (ageInput && data["年齢"]) {
         ageInput.value = data["年齢"];
       }
       
-      // Set print link
       if (printLink) {
-        // Construct a relative path for print-from-api.html
-        // Assuming index.html and print-from-api.html are in the same directory
         let path = window.location.pathname;
         let basePath = path.substring(0, path.lastIndexOf('/') + 1);
         printLink.href = `${basePath}print-from-api.html?id=${data.id}`;
@@ -200,20 +192,18 @@ document.addEventListener("DOMContentLoaded", () => {
       alert("患者データの読み込みに失敗しました: " + error.message);
     });
   } else {
-    // If not editing, ensure printLink is not active or hidden
     if (printLink) {
-        printLink.style.display = 'none'; // Hide print link for new entries
+        printLink.style.display = 'none';
     }
   }
 
-  // Form submission
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const patientData = {
       id: form.querySelector('[name="id"]')?.value || "",
       名前: form.querySelector('[name="名前"]')?.value || "",
       生年月日: dobInput?.value || "",
-      年齢: ageInput?.value || "", // Ensure age is included
+      年齢: ageInput?.value || "", 
       性別: form.querySelector('[name="性別"]')?.value || "",
       受診日: visitDateInput?.value || "",
       血圧: form.querySelector('[name="血圧"]')?.value || "",
@@ -235,8 +225,8 @@ document.addEventListener("DOMContentLoaded", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         auth: localStorage.getItem("auth"),
-        action: "add", // "add" action in API handles both create and update (merge:true)
-        ...patientData // Spread all patient data including id
+        action: "add", 
+        ...patientData
       })
     })
     .then(res => {
