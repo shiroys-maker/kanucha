@@ -34,10 +34,9 @@
             writing-mode: vertical-rl;
             text-orientation: upright;
         }
-        /* Ensure textareas content is visible when readonly */
         textarea[readonly] {
             color: inherit;
-            overflow-y: hidden; /* Hide scrollbar if autoResizeTextarea manages height */
+            overflow-y: auto; /* Ensure scrollbar appears if content overflows fixed height */
         }
     </style>
 </head>
@@ -94,7 +93,9 @@
                     <span class="ml-4" id="patientSex"></span>
                 </div>
             </td>
-            <td class="small-text bg-gray-100">電話番号</td> </tr>
+            <td class="small-text bg-gray-100">電話番号</td> 
+            
+        </tr>
         <tr>
             <td class="small-text bg-gray-100">区分</td>
             <td>
@@ -146,7 +147,7 @@
         </tr>
     </table>
 
-    <div class="border-2 border-black mb-4" style="min-height: 250px;">
+    <div class="border-2 border-black mb-4" style="height: 300px;">
         <div class="h-full flex">
             <div class="w-16 bg-gray-100 border-r-2 border-black flex items-center justify-center">
                 <div class="vertical-text text-lg font-bold">処方</div>
@@ -157,7 +158,7 @@
         </div>
     </div>
 
-    <div class="border-2 border-black mb-4" style="min-height: 100px;">
+    <div class="border-2 border-black mb-4" style="height: 120px;">
         <div class="h-full flex">
             <div class="w-16 bg-gray-100 border-r-2 border-black flex items-center justify-center">
                 <div class="vertical-text text-lg font-bold">備考</div>
@@ -224,20 +225,17 @@
     const date = new Date(dateString);
     let era = '', year = date.getFullYear().toString(), month = (date.getMonth() + 1).toString(), day = date.getDate().toString();
     
-    // Formatting for Japanese Era (Heisei, Reiwa, etc.)
     try {
         const formatter = new Intl.DateTimeFormat('ja-JP-u-ca-japanese', { era: 'short', year: 'numeric' });
         const parts = formatter.formatToParts(date);
         const eraPart = parts.find(p => p.type === "era");
         const yearPart = parts.find(p => p.type === "year");
         if (eraPart) era = eraPart.value;
-        if (yearPart) year = yearPart.value; // This will be the year in the era
+        if (yearPart) year = yearPart.value; 
     } catch (e) {
-        // Fallback for environments that don't support Japanese calendar fully
         const gengoFormatter = new Intl.DateTimeFormat('ja-JP-u-ca-japanese', { era: 'long', year: 'numeric' }).format(date);
-        // Example: "令和6年" -> era="令和", year="6"
         if (gengoFormatter.includes('年')) {
-            era = gengoFormatter.substring(0, 2); // Assuming 2 chars for era like 令和, 平成
+            era = gengoFormatter.substring(0, 2); 
             year = gengoFormatter.substring(2, gengoFormatter.indexOf('年'));
         }
     }
@@ -256,6 +254,8 @@
     return age.toString();
   }
 
+  // autoResizeTextarea は hospitalNameAddress で使用する可能性があるため残しておきます。
+  // もし hospitalNameAddress も固定サイズでスクロールさせたい場合は、この関数の呼び出しも削除してください。
   function autoResizeTextarea(element) {
     element.style.height = 'auto'; 
     element.style.height = (element.scrollHeight + 2) + 'px'; 
@@ -264,7 +264,6 @@
   document.addEventListener("DOMContentLoaded", () => {
     if (!isAuthenticated()) {
       alert("認証されていません。ログインしてください。");
-      // Potentially redirect to a login page or disable functionality
       const textareas = document.querySelectorAll("textarea");
       textareas.forEach(ta => ta.value = "認証エラー");
       return;
@@ -273,17 +272,15 @@
     const params = new URLSearchParams(window.location.search);
     const patientId = params.get("id");
 
-    // Static information (can be filled from patient data if available)
-    document.getElementById("hospitalNameAddress").value = "沖縄県名護市安部１５６−２ Kanucha KIN Clinic\n電話番号: 0980-55-8880";
-    autoResizeTextarea(document.getElementById("hospitalNameAddress"));
+    const hospitalNameAddressTextarea = document.getElementById("hospitalNameAddress");
+    hospitalNameAddressTextarea.value = "沖縄県名護市安部１５６−２ Kanucha KIN Clinic\n電話番号: 0980-55-8880";
+    autoResizeTextarea(hospitalNameAddressTextarea); // hospitalNameAddress には適用（必要に応じて削除）
+
     document.getElementById("doctorName").innerText = "廣安 俊吾";
     
-    // Default empty values or placeholders for fields not in original patient data
-    document.getElementById("kouhiFutanshaNo1").innerText = ""; // Example placeholder
-    document.getElementById("kouhiFutanshaNo2").innerText = ""; // Example placeholder
-    document.getElementById("kouhiJukyushaNo").innerText = ""; // Example placeholder
-    // document.getElementById("hokenjaNo").innerText = ""; // Will be filled by patient data if available
-    // document.getElementById("hihokenshaNo").innerText = ""; // Will be filled by patient data if available
+    document.getElementById("kouhiFutanshaNo1").innerText = ""; 
+    document.getElementById("kouhiFutanshaNo2").innerText = ""; 
+    document.getElementById("kouhiJukyushaNo").innerText = ""; 
 
 
     if (patientId) {
@@ -324,7 +321,7 @@
         document.getElementById("issueDateDay").innerText = todayParts.day;
 
         const expiryDate = new Date();
-        expiryDate.setDate(expiryDate.getDate() + 3); // Default 4 days including issue day (so +3)
+        expiryDate.setDate(expiryDate.getDate() + 3); 
         const expiryParts = getFormattedDateParts(expiryDate.toISOString().split("T")[0]);
         document.getElementById("expiryDateEra").innerText = expiryParts.era;
         document.getElementById("expiryDateYear").innerText = expiryParts.year;
@@ -333,31 +330,24 @@
 
         let formattedPrescription = "";
         if (patient.投薬内容) {
-            const lines = patient.投薬内容.split(/\\n|\n/); // Handle both \\n and \n
-            lines.forEach((line, index) => {
+            const lines = patient.投薬内容.split(/\\n|\n/); 
+            lines.forEach((line) => {
                 if (line.trim() !== "") {
-                    // prescription-form.html doesn't number lines in its example, so just join them
                     formattedPrescription += `${line.trim()}\n`;
                 }
             });
         }
         const prescriptionTextarea = document.getElementById("prescriptionContent");
         prescriptionTextarea.value = formattedPrescription.trim() || '記載なし';
-        autoResizeTextarea(prescriptionTextarea);
+        // autoResizeTextarea(prescriptionTextarea); // この行は削除済み（またはコメントアウト）
 
         const remarksTextarea = document.getElementById("remarksContent");
-        // Combine original remarks logic with any new static remarks if needed
         let remarksValue = patient.備考 || '';
-        // Add the default remark about prescription validity period, if not already covered
-        // remarksValue += "\n※処方箋の使用期間は、特に記載のある場合を除き、交付の日を含めて４日以内です。";
         remarksTextarea.value = remarksValue.trim();
-        autoResizeTextarea(remarksTextarea);
+        // autoResizeTextarea(remarksTextarea); // この行は削除済み（またはコメントアウト）
 
-        // Populate insurance numbers if they exist in patient data
-        // Assuming '保険者番号' and '被保険者証・被保険者手帳の記号・番号' are fields in your patient object
         document.getElementById("hokenjaNo").innerText = patient.保険者番号 || '(保険者番号)';
         document.getElementById("hihokenshaNo").innerText = patient.被保険者記号番号 || '(記号・番号)';
-
 
       })
       .catch(error => {
@@ -366,9 +356,7 @@
           const errorMsg = "エラー: 患者データを読み込めませんでした。";
           document.getElementById("prescriptionContent").value = errorMsg;
           document.getElementById("remarksContent").value = "";
-          // Clear other fields too
           document.getElementById("patientName").innerText = "";
-          // ... and so on for other dynamic fields
       });
     } else {
       alert("患者IDが指定されていません。");
