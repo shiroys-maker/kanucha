@@ -8,22 +8,22 @@
     <style>
         @media print {
             .print-button-container { display: none !important; }
-            body { margin: 0; padding: 0; background-color: white; } /* 印刷時は背景白 */
-            .prescription-container-wrapper { padding: 0; background-color: white; } /* 印刷時のラッパーのパディングと背景解除 */
+            body { margin: 0; padding: 0; background-color: white; }
+            .prescription-container-wrapper { padding: 0; background-color: white; }
             .prescription-container {
-                margin: 0 auto; /* 印刷時は中央寄せ */
-                border: none; /* 印刷時は枠線をなしにすることも検討 */
+                margin: 0 auto;
+                border: none;
                 box-shadow: none;
                 width: 100%; /* 用紙幅に合わせる */
-                max-width: 128mm; /* B6縦の幅を最大幅としてみる */
+                max-width: 148mm; /* A5幅を最大幅としてみる */
                 height: auto;
             }
-            html, body { height: auto; } /* 印刷時の高さ自動調整 */
+            html, body { height: auto; }
         }
         .form-table { border-collapse: collapse; width: 100%; }
-        .form-table td, .form-table th { border: 1px solid black; padding: 1.5mm 2mm; } /* パディングをmm単位で微調整 */
-        .small-text { font-size: 9pt; } /* 少し小さく */
-        .tiny-text { font-size: 7pt; } /* 少し小さく */
+        .form-table td, .form-table th { border: 1px solid black; padding: 1.5mm 2mm; }
+        .small-text { font-size: 9pt; }
+        .tiny-text { font-size: 7pt; }
         input[type="text"], input[type="number"], textarea, select {
             border: none;
             background: transparent;
@@ -31,32 +31,29 @@
             padding: 0.5mm;
             outline: none;
             color: black;
-            font-size: inherit; /* 親要素のフォントサイズを継承 */
+            font-size: inherit;
         }
         textarea {
             resize: none;
-            overflow-y: hidden;
-            line-height: 1.5; /* textareaの行間調整 */
+            overflow-y: hidden; /* autoResizeTextareaで高さを調整するため */
+            line-height: 1.5;
         }
         .grid-cell { border: 1px solid black; }
-        .vertical-text-patient {
+        .vertical-text { /* 「処方」「備考」「患者」共通の縦書きスタイル */
             writing-mode: vertical-rl;
-            text-orientation: upright;
-            letter-spacing: 0.2em; /* 文字間を少し広げる */
-            line-height: 1;   /* 行間を詰める */
-        }
-        .vertical-text-label {
-            writing-mode: vertical-rl;
-            text-orientation: mixed; /* 処方・備考はmixedの方が自然かも */
-            letter-spacing: 0.2em;
+            text-orientation: mixed; /* 漢字とカナのみの場合は upright でも可 */
+            letter-spacing: 0.1em;  /* 文字間を少し調整 */
+            display: flex; /* 中央揃えのため */
+            align-items: center; /* 中央揃えのため */
+            justify-content: center; /* 中央揃えのため */
         }
         .data-field {
             min-height: 1em;
-            display: inline-block; /* 内容がない場合でも高さを確保しやすくする */
+            display: inline-block;
         }
         .prescription-container { /* 画面表示用のサイズ調整 */
-            width: 128mm; /* B6縦の幅 */
-            min-height: 182mm; /* B6縦の高さ */
+            width: 148mm; /* A5幅 */
+            min-height: 210mm; /* A5高さを目安に、内容は可変 */
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
     </style>
@@ -80,7 +77,7 @@
         </div>
 
         <table class="form-table mb-2 text-xs">
-            <tr>
+             <tr>
                 <td class="small-text bg-gray-100 w-1/12">公費負担者番号</td>
                 <td class="w-1/12"><input type="text" id="kouhiFutanshaNo1" readonly /></td>
                 <td class="w-1/12"><input type="text" id="kouhiFutanshaNo2" readonly /></td>
@@ -102,11 +99,11 @@
 
         <table class="form-table mb-2 text-xs">
             <tr>
-                <td rowspan="3" class="bg-gray-100 w-10 text-center vertical-text-patient text-lg font-semibold py-2">患<br/>者</td>
+                <td rowspan="3" class="bg-gray-100 w-10 text-center vertical-text text-lg font-semibold py-2">患<br/>者</td>
                 <td class="small-text bg-gray-100 w-1/6">氏名</td>
                 <td class="w-auto"><input type="text" id="patientName" class="font-semibold text-base" readonly /></td>
                 <td class="tiny-text bg-gray-100 w-1/5">保険医療機関の<br/>所在地及び名称</td>
-                <td rowspan="2" class="w-auto"><textarea id="hospitalNameAddress" rows="3" class="small-text leading-tight" readonly></textarea></td> 
+                <td rowspan="2" class="w-auto"><textarea id="hospitalNameAddress" rows="3" class="small-text leading-tight" readonly></textarea></td>
             </tr>
             <tr>
                 <td class="small-text bg-gray-100">生年月日</td>
@@ -128,7 +125,7 @@
                      （　　） 本人 ・ 家族
                 </td>
                 <td class="small-text bg-gray-100">保険医氏名</td>
-                <td class="text-right relative pr-10"> 
+                <td class="text-right relative pr-10">
                     <span id="doctorName" class="data-field text-base"></span>
                     <div class="absolute right-1 bottom-1 border border-black w-6 h-6 text-center leading-6 text-xs">印</div>
                 </td>
@@ -145,7 +142,7 @@
                     <span id="issueDateDay" class="data-field w-4 text-right"></span>日
                 </td>
                 <td class="tiny-text w-1/5 bg-gray-100">処方せんの<br/>使用期間</td>
-                <td class="w-auto small-text" colspan="1"> 
+                <td class="w-auto small-text" colspan="1">
                     <span id="expiryDateEra" class="data-field"></span>
                     <span id="expiryDateYear" class="data-field w-6 text-right"></span>年
                     <span id="expiryDateMonth" class="data-field w-4 text-right"></span>月
@@ -163,28 +160,25 @@
             </tr>
         </table>
 
-        <div class="border-2 border-black mb-2 flex flex-col" style="min-height: 80mm;">
-            <div class="flex flex-grow">
-                <div class="w-10 bg-gray-100 border-r-2 border-black flex items-center justify-center py-1">
-                    <div class="vertical-text-label text-lg font-semibold tracking-wider">処方</div>                </div>
-                <div class="flex-1 p-1">
-                    <textarea id="prescriptionContent" class="w-full h-full text-sm leading-snug" readonly></textarea>
-                </div>
+        <div class="border-2 border-black mb-2 flex" style="min-height: 60mm;"> 
+            <div class="w-10 bg-gray-100 border-r-2 border-black flex items-center justify-center py-1">
+                <div class="vertical-text text-lg font-semibold tracking-wider">処方</div>
+            </div>
+            <div class="flex-1 p-1">
+                <textarea id="prescriptionContent" class="w-full text-sm leading-snug" readonly rows="10"></textarea>
             </div>
         </div>
 
-        <div class="border-2 border-black mb-2 flex flex-col" style="min-height: 30mm;">
-             <div class="flex flex-grow">
-                <div class="w-10 bg-gray-100 border-r-2 border-black flex items-center justify-center py-1">
-                    <div class="vertical-text-label text-lg font-semibold tracking-wider">備考</div>
-                </div>
-                <div class="flex-1 p-1 relative">
-                    <textarea id="remarksContent" class="w-full h-full text-sm leading-snug" readonly></textarea>
-                    <div class="absolute bottom-1 right-1 tiny-text leading-tight">
-                        後発医薬品（ジェネリック医薬品）への変更が<br/>
-                        全て不可の場合は、以下に署名又は記名・押印<br/>
-                        保険医署名
-                    </div>
+        <div class="border-2 border-black mb-2 flex" style="min-height: 25mm;">
+            <div class="w-10 bg-gray-100 border-r-2 border-black flex items-center justify-center py-1">
+                <div class="vertical-text text-lg font-semibold tracking-wider">備考</div>
+            </div>
+            <div class="flex-1 p-1 relative">
+                <textarea id="remarksContent" class="w-full text-sm leading-snug" readonly rows="3"></textarea>
+                <div class="absolute bottom-1 right-1 tiny-text leading-tight">
+                    後発医薬品（ジェネリック医薬品）への変更が<br/>
+                    全て不可の場合は、以下に署名又は記名・押印<br/>
+                    保険医署名
                 </div>
             </div>
         </div>
@@ -256,16 +250,8 @@
     element.style.height = 'auto';
     const originalOverflow = element.style.overflowY;
     element.style.overflowY = 'hidden';
-    // scrollHeight が textarea の内容にフィットするが、親の高さも考慮する
-    // ここでは、textarea が flex-grow で伸びる親要素の中にあるので、
-    // 親要素の高さが内容によって決まるようにし、textarea はその中で100%になる想定
-    // CSS側で h-full を textarea に適用し、親の flex-grow で高さを確保
-    element.style.height = (element.scrollHeight) + 'px'; // まず内容に合わせる
+    element.style.height = (element.scrollHeight) + 'px';
     element.style.overflowY = originalOverflow;
-
-    // 親コンテナの高さが textarea の高さに合うように調整 (必要に応じて)
-    // 今回は flex-grow を使って親が高いので、textarea の h-full で対応させる
-    // もし textarea が h-full でなければ、この行は不要か、親の高さをJSで調整
   }
 
 
@@ -332,19 +318,19 @@
         let formattedPrescription = "";
         if (patient.投薬内容) {
             const lines = patient.投薬内容.split(/\n|\\n/);
-            lines.forEach((line) => { // index と indent を削除
+            lines.forEach((line) => {
                 if (line.trim() !== "") {
-                    formattedPrescription += `${line.trim()}\n`; // 番号とインデントを削除
+                    formattedPrescription += `${line.trim()}\n`; // 行頭の番号とインデントを削除
                 }
             });
         }
         const prescriptionTextarea = document.getElementById("prescriptionContent");
         prescriptionTextarea.value = formattedPrescription.trim() || '記載なし';
-        // autoResizeTextarea(prescriptionTextarea); // CSSで h-full にするのでJSでの高さ調整は不要に
+        autoResizeTextarea(prescriptionTextarea); // 高さを自動調整
 
         const remarksTextarea = document.getElementById("remarksContent");
         remarksTextarea.value = patient.備考 || '';
-        // autoResizeTextarea(remarksTextarea); // CSSで h-full にするのでJSでの高さ調整は不要に
+        autoResizeTextarea(remarksTextarea); // 高さを自動調整
       })
       .catch(error => {
           console.error("患者データの読み込みに失敗しました:", error);
