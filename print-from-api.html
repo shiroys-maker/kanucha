@@ -211,6 +211,8 @@ function calcAge(dob) {
 
 
 <script>
+  const API_ENDPOINT = "https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapifirestore"; // Updated API endpoint
+
   function isAuthenticated() {
     const auth = localStorage.getItem("auth");
     const expires = parseInt(localStorage.getItem("auth_expire") || "0", 10);
@@ -235,7 +237,7 @@ function calcAge(dob) {
   }
 
   if (patientId) {
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
+    fetch(API_ENDPOINT, { // Use the updated endpoint
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -252,7 +254,7 @@ function calcAge(dob) {
       return res.json();
     })
     .then(patient => {
-      console.log("取得データ:", patient);
+      console.log("取得データ (Firestore):", patient);
       if (patient.error) {
           throw new Error(patient.error);
       }
@@ -268,7 +270,7 @@ function calcAge(dob) {
       }
     })
     .catch(error => {
-        console.error("患者データの読み込みに失敗しました:", error);
+        console.error("患者データの読み込みに失敗しました (Firestore):", error);
         alert("患者データの読み込みに失敗しました: " + error.message);
     });
   } else {

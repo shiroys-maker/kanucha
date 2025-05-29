@@ -65,21 +65,18 @@ th {
   cursor: pointer;
 }
 
-/* These width declarations in style were incomplete in the original, completed them */
-th:nth-child(3), td:nth-child(3) { /* 性別 */
+th:nth-child(3), td:nth-child(3) {
   width: 60px;
 }
-th:nth-child(4), td:nth-child(4) { /* 年齢 */
+th:nth-child(4), td:nth-child(4) {
   width: 60px;
 }
 
 
 table { table-layout: auto; }
-th:nth-child(5), td:nth-child(5) { width: 6em; }  /* 年齢欄 - This seems to be a duplicate or conflicting rule for age column width. Kept as is. */
+th:nth-child(5), td:nth-child(5) { width: 6em; }
 </style>
 <script>
-// This function is defined but not directly used to populate the age column in this file.
-// Age is populated from row.年齢 coming from the API.
 function calcAge(dob) {
   const birth = new Date(dob);
   const today = new Date();
@@ -109,6 +106,8 @@ function calcAge(dob) {
 </table>
 </div>
 <script>
+  const API_ENDPOINT = "https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapifirestore"; // Updated API endpoint
+
   function isAuthenticated() {
     const auth = localStorage.getItem("auth");
     const expires = parseInt(localStorage.getItem("auth_expire") || "0", 10);
@@ -122,8 +121,8 @@ function calcAge(dob) {
   const tbody = document.querySelector("tbody");
 
   function loadPatients() {
-    console.log("loadPatients関数を呼び出します");
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
+    console.log("loadPatients関数を呼び出します (Firestore)");
+    fetch(API_ENDPOINT, { // Use the updated endpoint
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -133,13 +132,13 @@ function calcAge(dob) {
     })
     .then(res => {
       console.log("レスポンスステータス:", res.status);
-      if (!res.ok) { // Handle HTTP errors
+      if (!res.ok) {
         throw new Error(`HTTP error! status: ${res.status}`);
       }
       return res.json();
     })
     .then(data => {
-      console.log("取得データ:", data);
+      console.log("取得データ (Firestore):", data);
       tbody.innerHTML = "";
       for (const row of data) {
         const tr = document.createElement("tr");
@@ -157,15 +156,15 @@ function calcAge(dob) {
         tbody.appendChild(tr);
       }
     })
-    .catch(error => { // Catch fetch or JSON parsing errors
-        console.error("患者データの読み込みに失敗しました:", error);
+    .catch(error => {
+        console.error("患者データの読み込みに失敗しました (Firestore):", error);
         alert("患者データの読み込みに失敗しました。");
     });
   }
 
   function deletePatient(id) {
     if (!confirm("本当に削除しますか？")) return;
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
+    fetch(API_ENDPOINT, { // Use the updated endpoint
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -181,7 +180,6 @@ function calcAge(dob) {
       return res.json();
     })
     .then((data) => {
-      // Assuming the API returns { result: "deleted" } or similar on success
       if (data.result === "deleted") {
         alert("削除しました");
         loadPatients();
@@ -190,7 +188,7 @@ function calcAge(dob) {
       }
     })
     .catch((error) => {
-        console.error("削除に失敗しました:", error);
+        console.error("削除に失敗しました (Firestore):", error);
         alert("削除に失敗しました。");
     });
   }

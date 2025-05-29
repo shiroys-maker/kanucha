@@ -67,6 +67,8 @@
 <body>
 
 <script>
+  const API_ENDPOINT = "https://us-central1-kanucha-api.cloudfunctions.net/kanuchaapifirestore"; // Updated API endpoint
+
   function isAuthenticated() {
     const auth = localStorage.getItem("auth");
     const expires = parseInt(localStorage.getItem("auth_expire") || "0", 10);
@@ -128,6 +130,9 @@ function calcAge(dob) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // API_ENDPOINT is already defined in the script block above this one.
+  // No need to redefine unless it's out of scope, which it isn't here.
+
   const form = document.getElementById("form");
   const urlParams = new URLSearchParams(window.location.search);
   const id = urlParams.get("id");
@@ -148,7 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (id) {
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
+    fetch(API_ENDPOINT, { // Use the updated endpoint
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -186,7 +191,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     })
     .catch(error => {
-      console.error("患者データの読み込みに失敗しました:", error);
+      console.error("患者データの読み込みに失敗しました (Firestore):", error);
       alert("患者データの読み込みに失敗しました: " + error.message);
     });
   } else {
@@ -218,7 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
       備考: form.querySelector('[name="備考"]')?.value || ""
     };
 
-    fetch("https://us-central1-kanucha-api.cloudfunctions.net/kanuchaApi", {
+    fetch(API_ENDPOINT, { // Use the updated endpoint
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -240,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     })
     .catch(error => {
-      console.error("保存に失敗しました:", error);
+      console.error("保存に失敗しました (Firestore):", error);
       alert("保存に失敗しました: " + error.message);
     });
   });
