@@ -7,202 +7,210 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         @media print {
-            body { margin: 0; }
+            body { margin: 0; padding: 0; background: #fff; }
             .no-print { display: none; }
+            .prescription-container-wrapper {
+                margin: 0;
+                border: none;
+                box-shadow: none;
+                width: 100%;
+                height: auto;
+            }
         }
         .form-table { border-collapse: collapse; width: 100%; }
         .form-table td, .form-table th { border: 1px solid black; padding: 2px 4px; }
         .small-text { font-size: 10px; }
         .tiny-text { font-size: 8px; }
         .large-patient-text { font-size: 18px; font-weight: bold; }
-        input[type="text"], input[type="number"], textarea, select {
+        textarea {
             border: none;
             background: transparent;
             width: 100%;
             outline: none;
+            resize: none; /* Disable manual resize */
         }
         .grid-cell { border: 1px solid black; }
         .vertical-text {
             writing-mode: vertical-rl;
             text-orientation: upright;
         }
+        /* Ensure textareas content is visible when readonly */
+        textarea[readonly] {
+            color: inherit;
+            overflow-y: hidden; /* Hide scrollbar if autoResizeTextarea manages height */
+        }
     </style>
 </head>
-<body class="bg-white p-4 font-mono">
-    <div class="max-w-4xl mx-auto bg-white border-2 border-black p-4">
-        
-        <!-- Header -->
-        <div class="text-center mb-4">
-            <h1 class="text-3xl font-bold tracking-widest">処　　　方　　　せ　　　ん</h1>
-            <p class="tiny-text mt-2">（この処方せんは、どの保険薬局でも有効です。）</p>
-        </div>
+<body class="bg-gray-200 p-4 font-mono">
 
-        <!-- Insurance Information Section -->
-        <table class="form-table mb-4">
-            <tr>
-                <td class="small-text bg-gray-100 w-24">公費負担者番号</td>
-                <td class="w-16"><input type="text" /></td>
-                <td class="w-16"><input type="text" /></td>
-                <td class="w-16"><input type="text" /></td>
-                <td class="w-16"><input type="text" /></td>
-                <td class="w-16"><input type="text" /></td>
-                <td class="w-16"><input type="text" /></td>
-                <td class="small-text bg-gray-100 w-24">保険者番号</td>
-                <td class="w-16"><input type="text" /></td>
-                <td class="w-16"><input type="text" /></td>
-                <td class="w-16"><input type="text" /></td>
-                <td class="w-16"><input type="text" /></td>
-            </tr>
-            <tr>
-                <td class="small-text bg-gray-100">公費負担医療<br/>の受給者番号</td>
-                <td colspan="6"><input type="text" /></td>
-                <td class="tiny-text bg-gray-100">被保険者証・被扶養者証<br/>記号・番号の記号・番号</td>
-                <td colspan="4"><input type="text" /></td>
-            </tr>
-        </table>
+<div class="print-button-container no-print text-center mb-4">
+  <button onclick="window.print()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">この処方箋を印刷</button>
+  <button onclick="window.close()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded ml-2">閉じる</button>
+</div>
 
-        <!-- Patient Information Section -->
-        <table class="form-table mb-4">
-            <tr>
-                <td rowspan="4" class="large-patient-text bg-gray-100 w-16 text-center vertical-text">患者</td>
-                <td class="small-text bg-gray-100 w-16">氏名</td>
-                <td class="w-48"><input type="text" /></td>
-                <td class="tiny-text bg-gray-100 w-32">保険医療機関の<br/>所在地及び名称</td>
-                <td rowspan="2" class="w-48"><textarea rows="2"></textarea></td>
-            </tr>
-            <tr>
-                <td class="small-text bg-gray-100">生年月日</td>
-                <td>
-                    <div class="flex items-center space-x-1">
-                        <input type="number" class="w-8" placeholder="年" />年
-                        <input type="number" class="w-6" placeholder="月" />月
-                        <input type="number" class="w-6" placeholder="日" />日
-                        <span class="ml-4">男・女</span>
-                    </div>
-                </td>
-                <td class="small-text bg-gray-100">電話番号</td>
-            </tr>
-            <tr>
-                <td class="small-text bg-gray-100">区分</td>
-                <td>
-                    <div class="flex space-x-2">
-                        <div class="flex-1 text-center small-text">被保険者</div>
-                        <div class="flex-1 text-center small-text">被扶養者等</div>
-                    </div>
-                </td>
-                <td class="small-text bg-gray-100">保険医氏名</td>
-                <td class="text-right">
-                    <div class="inline-block border border-black w-8 h-8 text-center leading-8">印</div>
-                </td>
-            </tr>
-            <tr>
-                <td class="small-text bg-gray-100">区分</td>
-                <td>
-                    <div class="grid grid-cols-5 gap-1">
-                        <div class="grid-cell text-center tiny-text">前期高齢者番号</div>
-                        <div class="grid-cell text-center tiny-text">点数表番号</div>
-                        <div class="grid-cell text-center tiny-text">医療機関コード</div>
-                        <div class="grid-cell"><input type="text" /></div>
-                        <div class="grid-cell"><input type="text" /></div>
-                    </div>
-                </td>
-                <td colspan="2"></td>
-            </tr>
-        </table>
+<div class="prescription-container-wrapper max-w-4xl mx-auto bg-white border-2 border-black p-4">
+    
+    <div class="text-center mb-4">
+        <h1 class="text-3xl font-bold tracking-widest">処　　　方　　　せ　　　ん</h1>
+        <p class="tiny-text mt-2">（この処方せんは、どの保険薬局でも有効です。）</p>
+    </div>
 
-        <!-- Prescription Date Section -->
-        <table class="form-table mb-4">
-            <tr>
-                <td class="small-text bg-gray-100 w-20">交付年月日</td>
-                <td class="w-16">平成</td>
-                <td class="w-8"><input type="number" /></td>
-                <td class="w-4">年</td>
-                <td class="w-8"><input type="number" /></td>
-                <td class="w-4">月</td>
-                <td class="w-8"><input type="number" /></td>
-                <td class="w-4">日</td>
-                <td class="tiny-text w-24">処方せんの<br/>使用期間</td>
-                <td class="w-16">平成</td>
-                <td class="w-8"><input type="number" /></td>
-                <td class="w-4">年</td>
-                <td class="w-8"><input type="number" /></td>
-                <td class="w-4">月</td>
-                <td class="w-8"><input type="number" /></td>
-                <td class="w-4">日</td>
-                <td class="tiny-text">特に記載のある場合を除き、<br/>交付の日を含めて4日以内に<br/>保険薬局に提出すること</td>
-            </tr>
-        </table>
+    <table class="form-table mb-4">
+        <tr>
+            <td class="small-text bg-gray-100 w-24">公費負担者番号</td>
+            <td class="w-16"><span id="kouhiFutanshaNo1"></span></td>
+            <td class="w-16"><span id="kouhiFutanshaNo2"></span></td>
+            <td class="w-16"></td>
+            <td class="w-16"></td>
+            <td class="w-16"></td>
+            <td class="w-16"></td>
+            <td class="small-text bg-gray-100 w-24">保険者番号</td>
+            <td colspan="4"><span id="hokenjaNo"></span></td>
+        </tr>
+        <tr>
+            <td class="small-text bg-gray-100">公費負担医療<br/>の受給者番号</td>
+            <td colspan="6"><span id="kouhiJukyushaNo"></span></td>
+            <td class="tiny-text bg-gray-100">被保険者証・被扶養者証<br/>記号・番号の記号・番号</td>
+            <td colspan="4"><span id="hihokenshaNo"></span></td>
+        </tr>
+    </table>
 
-        <!-- Main Prescription Area -->
-        <div class="border-2 border-black mb-4" style="height: 300px;">
-            <div class="h-full flex">
-                <div class="w-16 bg-gray-100 border-r border-black flex items-center justify-center">
-                    <div class="vertical-text text-lg font-bold">処方</div>
+    <table class="form-table mb-4">
+        <tr>
+            <td rowspan="4" class="large-patient-text bg-gray-100 w-16 text-center vertical-text">患者</td>
+            <td class="small-text bg-gray-100 w-20">氏名</td>
+            <td class="w-48"><span id="patientName" class="text-lg"></span></td>
+            <td class="tiny-text bg-gray-100 w-32">保険医療機関の<br/>所在地及び名称</td>
+            <td rowspan="2" class="w-48"><textarea id="hospitalNameAddress" rows="3" readonly class="text-xs"></textarea></td>
+        </tr>
+        <tr>
+            <td class="small-text bg-gray-100">生年月日</td>
+            <td>
+                <div class="flex items-center space-x-1">
+                    <span id="patientDobEra"></span><span id="patientDobYear"></span>年
+                    <span id="patientDobMonth"></span>月
+                    <span id="patientDobDay"></span>日生
+                    （<span id="patientAge"></span>歳）
+                    <span class="ml-4" id="patientSex"></span>
                 </div>
-                <div class="flex-1 p-2">
-                    <textarea class="w-full h-full resize-none" placeholder="処方内容を記入してください"></textarea>
+            </td>
+            <td class="small-text bg-gray-100">電話番号</td> </tr>
+        <tr>
+            <td class="small-text bg-gray-100">区分</td>
+            <td>
+                <div class="flex space-x-2">
+                    <div class="flex-1 text-center small-text">被保険者</div>
+                    <div class="flex-1 text-center small-text">被扶養者等</div>
                 </div>
+            </td>
+            <td class="small-text bg-gray-100">保険医氏名</td>
+            <td class="text-right">
+                <span id="doctorName" class="mr-1"></span>
+                <div class="inline-block border border-black w-8 h-8 text-center leading-8 tiny-text align-middle">印</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="small-text bg-gray-100">区分</td>
+            <td>
+                <div class="grid grid-cols-5 gap-1">
+                    <div class="grid-cell text-center tiny-text">前期高齢者番号</div>
+                    <div class="grid-cell text-center tiny-text">点数表番号</div>
+                    <div class="grid-cell text-center tiny-text">医療機関コード</div>
+                    <div class="grid-cell"><span></span></div>
+                    <div class="grid-cell"><span></span></div>
+                </div>
+            </td>
+            <td colspan="2"></td>
+        </tr>
+    </table>
+
+    <table class="form-table mb-4">
+        <tr>
+            <td class="small-text bg-gray-100 w-20">交付年月日</td>
+            <td class="w-12"><span id="issueDateEra"></span></td>
+            <td class="w-8"><span id="issueDateYear"></span></td>
+            <td class="w-4">年</td>
+            <td class="w-8"><span id="issueDateMonth"></span></td>
+            <td class="w-4">月</td>
+            <td class="w-8"><span id="issueDateDay"></span></td>
+            <td class="w-4">日</td>
+            <td class="tiny-text w-24">処方せんの<br/>使用期間</td>
+            <td class="w-12"><span id="expiryDateEra"></span></td>
+            <td class="w-8"><span id="expiryDateYear"></span></td>
+            <td class="w-4">年</td>
+            <td class="w-8"><span id="expiryDateMonth"></span></td>
+            <td class="w-4">月</td>
+            <td class="w-8"><span id="expiryDateDay"></span></td>
+            <td class="w-4">日</td>
+            <td class="tiny-text">特に記載のある場合を除き、<br/>交付の日を含めて4日以内に<br/>保険薬局に提出すること</td>
+        </tr>
+    </table>
+
+    <div class="border-2 border-black mb-4" style="min-height: 250px;">
+        <div class="h-full flex">
+            <div class="w-16 bg-gray-100 border-r-2 border-black flex items-center justify-center">
+                <div class="vertical-text text-lg font-bold">処方</div>
             </div>
-        </div>
-
-        <!-- Notes Section -->
-        <div class="border-2 border-black mb-4" style="height: 120px;">
-            <div class="h-full flex">
-                <div class="w-16 bg-gray-100 border-r border-black flex items-center justify-center">
-                    <div class="vertical-text text-lg font-bold">備考</div>
-                </div>
-                <div class="flex-1 p-2 relative">
-                    <textarea class="w-full h-full resize-none" placeholder="備考を記入してください"></textarea>
-                    <div class="absolute bottom-2 right-2 tiny-text">
-                        後発医薬品（ジェネリック医薬品）への変更が<br/>
-                        全て不可の場合は、以下に署名又は記名・押印<br/><br/>
-                        保険医署名
-                    </div>
-                </div>
+            <div class="flex-1 p-2">
+                <textarea id="prescriptionContent" readonly class="w-full h-full"></textarea>
             </div>
-        </div>
-
-        <!-- Footer Section -->
-        <table class="form-table">
-            <tr>
-                <td class="small-text bg-gray-100 w-20">調剤年月日</td>
-                <td class="w-16">平成</td>
-                <td class="w-8"><input type="number" /></td>
-                <td class="w-4">年</td>
-                <td class="w-8"><input type="number" /></td>
-                <td class="w-4">月</td>
-                <td class="w-8"><input type="number" /></td>
-                <td class="w-4">日</td>
-                <td class="small-text bg-gray-100 w-24">公費負担者番号</td>
-                <td class="w-16"><input type="text" /></td>
-                <td class="w-16"><input type="text" /></td>
-                <td class="w-16"><input type="text" /></td>
-                <td class="w-16"><input type="text" /></td>
-            </tr>
-            <tr>
-                <td class="tiny-text bg-gray-100">保険薬局の所在地<br/>及び名称<br/>保険薬剤師氏名</td>
-                <td colspan="7">
-                    <textarea rows="2"></textarea>
-                </td>
-                <td class="text-center">
-                    <div class="inline-block border border-black w-8 h-8 text-center leading-8 tiny-text">印</div>
-                </td>
-                <td class="tiny-text bg-gray-100">公費負担医療の<br/>受給者番号</td>
-                <td colspan="3"><input type="text" /></td>
-            </tr>
-        </table>
-
-        <!-- Bottom Notes -->
-        <div class="mt-2 tiny-text">
-            <p><strong>備考</strong> 1.「処方」欄には、薬名、分量、用法及び用量を記載すること。なお、この様式によれば、1回に処方することができる投薬量は、内服薬及び外用薬については14日分、注射薬については3日分を限度とする。</p>
-            <p class="ml-16">ただし、長期の療養を必要とする患者について投薬量が30日を限度として厚生労働大臣が別に定める日数を超えた投薬を行う場合は、その理由を「備考」欄に記載すること。</p>
-            <p>2. この用紙は、日本工業規格A列4番とすること。</p>
-            <p>3. 保険医療機関は「公費負担医療に関する法律による医療」、「労働者災害補償保険法による療養」又は「公害の被害に関する事項」又は「公害健康被害補償法による公費負担医療」を受ける者に係る処方せんについては、「保険医療機関」を「療養担当医師」と、「保険医」を「担当医師」と読み替えるものとする。</p>
         </div>
     </div>
 
-    <script>
-  // JavaScript部分は前回から変更なし（API_ENDPOINTは実際の値にしてください）
+    <div class="border-2 border-black mb-4" style="min-height: 100px;">
+        <div class="h-full flex">
+            <div class="w-16 bg-gray-100 border-r-2 border-black flex items-center justify-center">
+                <div class="vertical-text text-lg font-bold">備考</div>
+            </div>
+            <div class="flex-1 p-2 relative">
+                <textarea id="remarksContent" readonly class="w-full h-full"></textarea>
+                <div class="absolute bottom-1 right-1 tiny-text">
+                    後発医薬品（ジェネリック医薬品）への変更が<br/>
+                    全て不可の場合は、以下に署名又は記名・押印<br/><br/>
+                    保険医署名＿＿＿＿＿＿＿＿＿
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="form-table">
+        <tr>
+            <td class="small-text bg-gray-100 w-20">調剤年月日</td>
+            <td class="w-16"></td>
+            <td class="w-8"></td>
+            <td class="w-4">年</td>
+            <td class="w-8"></td>
+            <td class="w-4">月</td>
+            <td class="w-8"></td>
+            <td class="w-4">日</td>
+            <td class="small-text bg-gray-100 w-24">公費負担者番号</td>
+            <td class="w-16"></td>
+            <td class="w-16"></td>
+            <td class="w-16"></td>
+            <td class="w-16"></td>
+        </tr>
+        <tr>
+            <td class="tiny-text bg-gray-100">保険薬局の所在地<br/>及び名称<br/>保険薬剤師氏名</td>
+            <td colspan="7">
+                <div style="height: 3em;"></div>
+            </td>
+            <td class="text-center">
+                <div class="inline-block border border-black w-8 h-8 text-center leading-8 tiny-text">印</div>
+            </td>
+            <td class="tiny-text bg-gray-100">公費負担医療の<br/>受給者番号</td>
+            <td colspan="3"></td>
+        </tr>
+    </table>
+
+    <div class="mt-2 tiny-text">
+        <p><strong>備考</strong> 1.「処方」欄には、薬名、分量、用法及び用量を記載すること。なお、この様式によれば、1回に処方することができる投薬量は、内服薬及び外用薬については14日分、注射薬については3日分を限度とする。</p>
+        <p class="ml-16">ただし、長期の療養を必要とする患者について投薬量が30日を限度として厚生労働大臣が別に定める日数を超えた投薬を行う場合は、その理由を「備考」欄に記載すること。</p>
+        <p>2. この用紙は、日本工業規格A列4番とすること。</p>
+        <p>3. 保険医療機関は「公費負担医療に関する法律による医療」、「労働者災害補償保険法による療養」又は「公害の被害に関する事項」又は「公害健康被害補償法による公費負担医療」を受ける者に係る処方せんについては、「保険医療機関」を「療養担当医師」と、「保険医」を「担当医師」と読み替えるものとする。</p>
+    </div>
+</div>
+
+<script>
   const API_ENDPOINT = "https://us-central1-kanucha-firestore-test.cloudfunctions.net/kanuchaapifirestorenew";
 
   function isAuthenticated() {
@@ -215,19 +223,27 @@
     if (!dateString) return { era: '', year: '', month: '', day: '' };
     const date = new Date(dateString);
     let era = '', year = date.getFullYear().toString(), month = (date.getMonth() + 1).toString(), day = date.getDate().toString();
+    
+    // Formatting for Japanese Era (Heisei, Reiwa, etc.)
     try {
         const formatter = new Intl.DateTimeFormat('ja-JP-u-ca-japanese', { era: 'short', year: 'numeric' });
         const parts = formatter.formatToParts(date);
         const eraPart = parts.find(p => p.type === "era");
         const yearPart = parts.find(p => p.type === "year");
         if (eraPart) era = eraPart.value;
-        if (yearPart) year = yearPart.value;
+        if (yearPart) year = yearPart.value; // This will be the year in the era
     } catch (e) {
-        console.warn("Japanese era formatting failed, using Western calendar year.", e);
+        // Fallback for environments that don't support Japanese calendar fully
+        const gengoFormatter = new Intl.DateTimeFormat('ja-JP-u-ca-japanese', { era: 'long', year: 'numeric' }).format(date);
+        // Example: "令和6年" -> era="令和", year="6"
+        if (gengoFormatter.includes('年')) {
+            era = gengoFormatter.substring(0, 2); // Assuming 2 chars for era like 令和, 平成
+            year = gengoFormatter.substring(2, gengoFormatter.indexOf('年'));
+        }
     }
     return { era, year, month, day };
   }
-
+  
   function calcAge(dobString) {
     if (!dobString) return "";
     const birthDate = new Date(dobString);
@@ -241,35 +257,34 @@
   }
 
   function autoResizeTextarea(element) {
-    element.style.height = 'auto'; // Reset height to shrink if text is deleted
-    const originalOverflow = element.style.overflowY;
-    element.style.overflowY = 'hidden';
-    // Add a small buffer to scrollHeight to prevent scrollbar from appearing in some cases
-    element.style.height = (element.scrollHeight + 2) + 'px'; // +2px buffer
-    element.style.overflowY = originalOverflow;
+    element.style.height = 'auto'; 
+    element.style.height = (element.scrollHeight + 2) + 'px'; 
   }
-
 
   document.addEventListener("DOMContentLoaded", () => {
     if (!isAuthenticated()) {
       alert("認証されていません。ログインしてください。");
+      // Potentially redirect to a login page or disable functionality
+      const textareas = document.querySelectorAll("textarea");
+      textareas.forEach(ta => ta.value = "認証エラー");
       return;
     }
 
     const params = new URLSearchParams(window.location.search);
     const patientId = params.get("id");
 
+    // Static information (can be filled from patient data if available)
     document.getElementById("hospitalNameAddress").value = "沖縄県名護市安部１５６−２ Kanucha KIN Clinic\n電話番号: 0980-55-8880";
+    autoResizeTextarea(document.getElementById("hospitalNameAddress"));
     document.getElementById("doctorName").innerText = "廣安 俊吾";
+    
+    // Default empty values or placeholders for fields not in original patient data
+    document.getElementById("kouhiFutanshaNo1").innerText = ""; // Example placeholder
+    document.getElementById("kouhiFutanshaNo2").innerText = ""; // Example placeholder
+    document.getElementById("kouhiJukyushaNo").innerText = ""; // Example placeholder
+    // document.getElementById("hokenjaNo").innerText = ""; // Will be filled by patient data if available
+    // document.getElementById("hihokenshaNo").innerText = ""; // Will be filled by patient data if available
 
-    document.getElementById("kouhiFutanshaNo1").value = "";
-    document.getElementById("kouhiFutanshaNo2").value = "";
-    document.getElementById("kouhiJukyushaNo").value = "";
-    document.getElementById("hokenjaNo1").value = "";
-    document.getElementById("hokenjaNo2").value = "";
-    document.getElementById("hokenjaNo3").value = "";
-    document.getElementById("hokenjaNo4").value = "";
-    document.getElementById("hihokenshaKigoBango").value = "";
 
     if (patientId) {
       fetch(API_ENDPOINT, {
@@ -289,25 +304,28 @@
         console.log("取得データ (Firestore):", patient);
         if (patient.error) throw new Error(patient.error);
 
-        document.getElementById("patientName").value = patient.名前 || '';
+        document.getElementById("patientName").innerText = patient.名前 || '';
         document.getElementById("patientSex").innerText = patient.性別 || '';
+        
+        if (patient.生年月日) {
+            const dobParts = getFormattedDateParts(patient.生年月日);
+            document.getElementById("patientDobEra").innerText = dobParts.era;
+            document.getElementById("patientDobYear").innerText = dobParts.year;
+            document.getElementById("patientDobMonth").innerText = dobParts.month;
+            document.getElementById("patientDobDay").innerText = dobParts.day;
+            document.getElementById("patientAge").innerText = calcAge(patient.生年月日);
+        }
 
-        const dobParts = getFormattedDateParts(patient.生年月日);
-        document.getElementById("patientDobEra").innerText = dobParts.era;
-        document.getElementById("patientDobYear").innerText = dobParts.year;
-        document.getElementById("patientDobMonth").innerText = dobParts.month;
-        document.getElementById("patientDobDay").innerText = dobParts.day;
-        document.getElementById("patientAge").innerText = calcAge(patient.生年月日);
-
-        const todayParts = getFormattedDateParts(new Date().toISOString().split("T")[0]);
+        const today = new Date().toISOString().split("T")[0];
+        const todayParts = getFormattedDateParts(today);
         document.getElementById("issueDateEra").innerText = todayParts.era;
         document.getElementById("issueDateYear").innerText = todayParts.year;
         document.getElementById("issueDateMonth").innerText = todayParts.month;
         document.getElementById("issueDateDay").innerText = todayParts.day;
 
-        const expiry = new Date();
-        expiry.setDate(expiry.getDate() + 3);
-        const expiryParts = getFormattedDateParts(expiry.toISOString().split("T")[0]);
+        const expiryDate = new Date();
+        expiryDate.setDate(expiryDate.getDate() + 3); // Default 4 days including issue day (so +3)
+        const expiryParts = getFormattedDateParts(expiryDate.toISOString().split("T")[0]);
         document.getElementById("expiryDateEra").innerText = expiryParts.era;
         document.getElementById("expiryDateYear").innerText = expiryParts.year;
         document.getElementById("expiryDateMonth").innerText = expiryParts.month;
@@ -315,9 +333,10 @@
 
         let formattedPrescription = "";
         if (patient.投薬内容) {
-            const lines = patient.投薬内容.split(/\n|\\n/);
-            lines.forEach((line) => {
+            const lines = patient.投薬内容.split(/\\n|\n/); // Handle both \\n and \n
+            lines.forEach((line, index) => {
                 if (line.trim() !== "") {
+                    // prescription-form.html doesn't number lines in its example, so just join them
                     formattedPrescription += `${line.trim()}\n`;
                 }
             });
@@ -327,17 +346,35 @@
         autoResizeTextarea(prescriptionTextarea);
 
         const remarksTextarea = document.getElementById("remarksContent");
-        remarksTextarea.value = patient.備考 || '';
+        // Combine original remarks logic with any new static remarks if needed
+        let remarksValue = patient.備考 || '';
+        // Add the default remark about prescription validity period, if not already covered
+        // remarksValue += "\n※処方箋の使用期間は、特に記載のある場合を除き、交付の日を含めて４日以内です。";
+        remarksTextarea.value = remarksValue.trim();
         autoResizeTextarea(remarksTextarea);
+
+        // Populate insurance numbers if they exist in patient data
+        // Assuming '保険者番号' and '被保険者証・被保険者手帳の記号・番号' are fields in your patient object
+        document.getElementById("hokenjaNo").innerText = patient.保険者番号 || '(保険者番号)';
+        document.getElementById("hihokenshaNo").innerText = patient.被保険者記号番号 || '(記号・番号)';
+
+
       })
       .catch(error => {
           console.error("患者データの読み込みに失敗しました:", error);
           alert("患者データの読み込みに失敗しました: " + error.message);
-          document.getElementById("prescriptionContent").value = "エラー: 患者データを読み込めませんでした。";
+          const errorMsg = "エラー: 患者データを読み込めませんでした。";
+          document.getElementById("prescriptionContent").value = errorMsg;
+          document.getElementById("remarksContent").value = "";
+          // Clear other fields too
+          document.getElementById("patientName").innerText = "";
+          // ... and so on for other dynamic fields
       });
     } else {
       alert("患者IDが指定されていません。");
-      document.getElementById("prescriptionContent").value = "患者IDが指定されていません。";
+      const noIdMsg = "患者IDが指定されていません。";
+      document.getElementById("prescriptionContent").value = noIdMsg;
+      document.getElementById("remarksContent").value = "";
     }
   });
 </script>
