@@ -52,9 +52,10 @@
       font-size: 14px;
       word-break: break-word;
     }
-    .info-table td:nth-child(odd) {
+    .info-table td:nth-child(odd) { /* 既存のスタイルを維持 */
         font-weight: bold;
     }
+    /* HTML構造の変更に伴い、もし<td><strong>名前</strong></td>のようにHTML側でbold指定するなら上記は不要になる可能性がありますが、現状維持します */
 
 
     .section {
@@ -65,7 +66,7 @@
 
     .label {
       font-weight: bold;
-      display: block;
+      display: block; /* 以前blockに変更したのを維持 */
       font-size: 15px;
       border-bottom: 1px solid #000;
       margin-bottom: 6px;
@@ -88,7 +89,7 @@
     }
 
     .cell-content {
-      min-height: 48px;
+      min-height: 48px; /* 内容に応じて調整 */
       font-size: 14px;
       line-height: 1.4;
       padding: 4px 0;
@@ -100,6 +101,24 @@
     .field-label {
         font-weight: bold;
     }
+
+    /* --- ここからバイタル欄用の新しいCSS --- */
+    .vitals-grid {
+      display: flex;
+      flex-wrap: wrap; /* 項目が多い場合に折り返す */
+      gap: 0px 10px; /* 行間0px、列間10pxの隙間 */
+    }
+
+    .vital-item {
+      flex-basis: calc(50% - 5px); /* 2列にするため、列間の隙間を考慮 */
+      box-sizing: border-box;
+      margin-bottom: 4px; /* 各項目の下のマージン */
+    }
+
+    .vital-item span:first-child { /* "血圧:" のようなラベル部分 */
+      /* 必要であればスタイル追加 (例: display: inline-block; width: 50px;) */
+    }
+    /* --- ここまでバイタル欄用の新しいCSS --- */
 
 
     .footer {
@@ -127,7 +146,7 @@
       }
 
       .record-container {
-        transform: scale(1);
+        transform: scale(1); /* 以前は0.97だったが、1に戻すか必要に応じて調整 */
         transform-origin: top center;
         margin: 0 auto;
         border: none;
@@ -180,11 +199,11 @@ function calcAge(dob) {
     <div class="split-half">
     <div class="label">現病歴</div>
     <div><span class="field-label">バイタル:</span>
-    <div class="cell-content">
-                  血圧: <span id="血圧"></span>　
-                  脈: <span id="脈"></span><br/>
-                  体温: <span id="体温"></span>　
-                  SAT: <span id="SAT"></span>
+    <div class="cell-content vitals-grid">
+        <div class="vital-item">血圧: <span id="血圧"></span></div>
+        <div class="vital-item">脈: <span id="脈"></span></div>
+        <div class="vital-item">体温: <span id="体温"></span></div>
+        <div class="vital-item">SAT: <span id="SAT"></span></div>
     </div>
     </div>
     <div><span class="field-label">来院の目的:</span><div class="cell-content" id="来院の目的"></div></div>
@@ -211,7 +230,8 @@ function calcAge(dob) {
 
 
 <script>
-  const API_ENDPOINT = "https://us-central1-kanucha-firestore-test.cloudfunctions.net/kanuchaapifirestorenew"; // Updated API endpoint
+  // API_ENDPOINTは新しいプロジェクトのものを設定済みとします
+  const API_ENDPOINT = "https://us-central1-kanucha-firestore-test.cloudfunctions.net/kanuchaapifirestorenew";
 
   function isAuthenticated() {
     const auth = localStorage.getItem("auth");
@@ -237,7 +257,7 @@ function calcAge(dob) {
   }
 
   if (patientId) {
-    fetch(API_ENDPOINT, { // Use the updated endpoint
+    fetch(API_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
