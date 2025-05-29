@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8"/>
+<title>処方箋</title>
+<style>
+    body {
+        font-family: 'MS Mincho', 'MS PMincho', serif;
+        margin: 0;
+        padding: 20px;
+        background: #f9f9f9;
+    }
+    .prescription-container {
+        width: 148mm;
+        margin: auto;
+        padding: 10mm;
+        border: 1px solid #000;
+        background: #fff;
+        box-sizing: border-box;
+        overflow: visible;
+        position: relative;
+    }
+    .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 5mm;
+    }
+    .prescription-title-main {
+        text-align: center;
+        font-size: 16pt;
+        font-weight: bold;
+        flex-grow: 1;
+    }
+    .kouhi-futansha {
+        font-size: 8pt;
+        border: 1px solid black;
+        padding: 2px;
+        text-align: center;
+    }
+    .info-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 2px 5px;
+        font-size: 10pt;
+        margin-bottom: 3mm;
+    }
+    .info-grid dt {
+        font-weight: normal;
+    }
+    .info-grid dd {
+        margin-left: 0;
+    }
+    .patient-info-container {
+        border: 1px solid black;
+        padding: 5px;
+        margin-bottom: 3mm;
+    }
+    .patient-info-container .info-grid {
+        margin-bottom: 0;
+    }
+    .date-section {
+        text-align: right;
+        font-size: 10pt;
+        margin-bottom: 5mm;
+    }
+    .rp-title {
+        font-size: 11pt;
+        font-weight: bold;
+        margin-bottom: 2mm;
+        padding-left: 1em;
+    }
+    .prescription-content {
+        border-top: 1px solid #555;
+        border-bottom: 1px solid #555;
+        padding: 8px 2px;
+        min-height: 30mm;
+        white-space: pre-line;
+        font-size: 10pt;
+        line-height: 1.6;
+    }
+    .hospital-doctor-info {
+        margin-top: 5mm;
+        font-size: 9pt;
+    }
+    .hospital-doctor-info p {
+        margin: 1mm 0;
+    }
+    .doctor-name {
+        text-align: right;
+        font-size: 10pt;
+        padding-right: 2em;
+    }
+    .remarks-section {
+        margin-top: 5mm;
+        font-size: 8pt;
+        border: 1px solid black;
+        padding: 5px;
+    }
+    .remarks-section p {
+        margin: 1mm 0;
+    }
+
+    .print-button-container {
+      text-align: center;
+      margin: 20px;
+    }
+
+    @media print {
+      .print-button-container {
+        display: none;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        background: #fff;
+      }
+      .prescription-container {
+        margin: 0;
+        border: none;
+        box-shadow: none;
+        width: 100%;
+        height: auto;
+      }
+    }
+</style>
+</head>
+<body>
+
+<div class="print-button-container">
+  <button onclick="window.print()">この処方箋を印刷</button>
+  <button onclick="window.close()">閉じる</button>
+</div>
+
+<div class="prescription-container">
+  <div class="header-section">
+    <div class="prescription-title-main">処方せん</div>
+    <div class="kouhi-futansha">
+      <div>公費負担者番号</div>
+      <div style="letter-spacing: 0.5em;">( )</div>
+      <div>公費負担医療の受給者番号</div>
+      <div style="letter-spacing: 0.5em;">( )</div>
+    </div>
+  </div>
+
+  <div class="patient-info-container">
+    <dl class="info-grid">
+      <dt>患者の氏名</dt><dd id="patientName"></dd>
+      <dt>性別</dt><dd id="patientSex"></dd>
+      <dt>生年月日</dt><dd id="patientDob"></dd>
+      <dt>保険者番号</dt><dd id="hokenjaNo">（保険者番号）</dd>
+      <dt>被保険者証・被保険者手帳の記号・番号</dt><dd id="hihokenshaNo">（記号・番号）</dd>
+    </dl>
+  </div>
+
+  <div class="date-section">
+    交付年月日: <span id="issueDate"></span>
+  </div>
+
+  <div class="rp-title">Rp.</div>
+  <div class="prescription-content" id="prescriptionContent">
+  </div>
+
+  <div class="hospital-doctor-info">
+    <p>保険医療機関の所在地及び名称:</p>
+    <p style="padding-left: 1em;" id="hospitalNameAddress">沖縄県名護市安部１５６−２ Kanucha KIN Clinic</p>
+    <p style="padding-left: 1em;" id="hospitalPhone">電話番号: 0980-XX-XXXX</p>
+    <p class="doctor-name" style="margin-top: 3mm;">保険医氏名: <span id="doctorName" style="font-size: 12pt; margin-right:1em;">廣安 俊吾</span> 印</p>
+  </div>
+
+  <div class="remarks-section">
+    <p>備考:</p>
+    <p>（後発医薬品への変更に関する患者の意向等）</p>
+    <p>※処方箋の使用期間は、特に記載のある場合を除き、交付の日を含めて４日以内です。</p>
+  </div>
+
+</div>
+
+<script>
+  const API_ENDPOINT = "https://us-central1-kanucha-firestore-test.cloudfunctions.net/kanuchaapifirestorenew";
+
+  function isAuthenticated() {
+    const auth = localStorage.getItem("auth");
+    const expires = parseInt(localStorage.getItem("auth_expire") || "0", 10);
+    return auth === "nirai43929" && Date.now() < expires;
+  }
+
+  function formatDate(dateString, format = 'jp') {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    if (format === 'jp') {
+        // より安定した和暦変換のためにIntl.DateTimeFormatのオプションを調整
+        try {
+            const gengoFormatter = new Intl.DateTimeFormat('ja-JP-u-ca-japanese', { era: 'long', year: 'numeric' });
+            const parts = gengoFormatter.formatToParts(date);
+            let gengoYear = "";
+            for (const part of parts) {
+                if (part.type === "era") gengoYear += part.value;
+                if (part.type === "year") gengoYear += part.value;
+            }
+            return `${gengoYear}年${month}月${day}日`;
+        } catch (e) {
+            // フォールバックとして西暦表示
+            console.warn("Japanese era formatting failed, falling back to Western calendar year.", e);
+            return `${year}年${month}月${day}日`;
+        }
+    }
+    return `${year}年${month}月${day}日`;
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    if (!isAuthenticated()) {
+      alert("認証されていません。ログインしてください。");
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const patientId = params.get("id");
+
+    const hospitalPhoneElement = document.getElementById("hospitalPhone");
+    if (hospitalPhoneElement) hospitalPhoneElement.innerText = "電話番号: 0980-55-8880";
+
+    if (patientId) {
+      fetch(API_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          auth: localStorage.getItem("auth"),
+          action: "getById",
+          id: patientId
+        })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        return res.json();
+      })
+      .then(patient => {
+        console.log("取得データ (Firestore):", patient);
+        if (patient.error) throw new Error(patient.error);
+
+        document.getElementById("patientName").innerText = patient.名前 || '';
+        document.getElementById("patientSex").innerText = patient.性別 || '';
+        document.getElementById("patientDob").innerText = formatDate(patient.生年月日, 'jp') || '';
+
+        document.getElementById("issueDate").innerText = formatDate(new Date().toISOString().split("T")[0], 'jp');
+
+        let formattedPrescription = "";
+        if (patient.投薬内容) {
+            const lines = patient.投薬内容.split('\\n'); // Firestoreのデータが実際の改行文字 (\n) を含んでいれば split('\n')
+            lines.forEach((line, index) => {
+                if (line.trim() !== "") {
+                    // 2行目以降で、行頭にスペースを4つ追加してインデント風にする（例）
+                    const indent = index > 0 ? "    " : "";
+                    formattedPrescription += `${indent}${index + 1}. ${line.trim()}\\n`;
+                }
+            });
+        }
+        document.getElementById("prescriptionContent").innerText = formattedPrescription.trim() || '記載なし';
+
+
+      })
+      .catch(error => {
+          console.error("患者データの読み込みに失敗しました:", error);
+          alert("患者データの読み込みに失敗しました: " + error.message);
+          document.getElementById("prescriptionContent").innerText = "エラー: 患者データを読み込めませんでした。";
+      });
+    } else {
+      alert("患者IDが指定されていません。");
+      document.getElementById("prescriptionContent").innerText = "患者IDが指定されていません。";
+    }
+  });
+</script>
+</body>
+</html>

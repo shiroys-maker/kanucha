@@ -4,6 +4,7 @@
 <meta charset="utf-8"/>
 <title>患者フォーム</title>
 <style>
+  /* スタイルは変更なし */
   body {
     font-family: 'Helvetica Neue', sans-serif;
     background: #eef5f9;
@@ -67,7 +68,8 @@
 <body>
 
 <script>
-  const API_ENDPOINT = "https://us-central1-kanucha-firestore-test.cloudfunctions.net/kanuchaapifirestorenew"; // Updated API endpoint
+  // API_ENDPOINT は新しいプロジェクトのものを設定済みとします
+  const API_ENDPOINT = "https://us-central1-kanucha-firestore-test.cloudfunctions.net/kanuchaapifirestorenew";
 
   function isAuthenticated() {
     const auth = localStorage.getItem("auth");
@@ -108,10 +110,12 @@
 <div>診断名: <textarea class="normal-height" name="診断名" rows="3"></textarea></div>
 <div>投薬内容: <textarea class="double-height" name="投薬内容"></textarea></div>
 <div>備考: <textarea class="normal-height" name="備考" rows="3"></textarea></div>
+
 <div class="row">
-<button type="submit">更新</button>
-<button onclick="location.href='list.html'" type="button">一覧に戻る</button>
-<a class="button" href="#" id="printLink" target="_blank">印刷</a>
+  <button type="submit">更新</button>
+  <button onclick="location.href='list.html'" type="button">一覧に戻る</button>
+  <a class="button" href="#" id="printLink" target="_blank">診療記録印刷</a>
+  <a class="button" href="#" id="prescriptionPrintLink" target="_blank" style="display: none;">処方箋印刷</a> {/* 初期状態は非表示 */}
 </div>
 </form>
 </div>
@@ -130,9 +134,6 @@ function calcAge(dob) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // API_ENDPOINT is already defined in the script block above this one.
-  // No need to redefine unless it's out of scope, which it isn't here.
-
   const form = document.getElementById("form");
   const urlParams = new URLSearchParams(window.location.search);
   const id = urlParams.get("id");
@@ -141,6 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const ageInput = form.querySelector('[name="年齢"]');
   const visitDateInput = form.querySelector('[name="受診日"]');
   const printLink = document.getElementById("printLink");
+  const prescriptionPrintLink = document.getElementById("prescriptionPrintLink"); // 新しいボタンを取得
 
   if (dobInput && ageInput) {
     dobInput.addEventListener("change", () => {
@@ -152,8 +154,8 @@ document.addEventListener("DOMContentLoaded", () => {
     visitDateInput.value = new Date().toISOString().split("T")[0];
   }
 
-  if (id) {
-    fetch(API_ENDPOINT, { // Use the updated endpoint
+  if (id) { // 編集モード (既存患者IDあり)
+    fetch(API_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -184,19 +186,34 @@ document.addEventListener("DOMContentLoaded", () => {
         ageInput.value = data["年齢"];
       }
       
+      // 診療記録印刷リンクの設定
       if (printLink) {
         let path = window.location.pathname;
         let basePath = path.substring(0, path.lastIndexOf('/') + 1);
         printLink.href = `${basePath}print-from-api.html?id=${data.id}`;
+        printLink.style.display = 'inline-block'; // 表示する
+      }
+
+      // 処方箋印刷リンクの設定
+      if (prescriptionPrintLink) {
+        let path = window.location.pathname;
+        let basePath = path.substring(0, path.lastIndexOf('/') + 1);
+        prescriptionPrintLink.href = `${basePath}prescription.html?id=${data.id}`;
+        prescriptionPrintLink.style.display = 'inline-block'; // 表示する
       }
     })
     .catch(error => {
       console.error("患者データの読み込みに失敗しました (Firestore):", error);
       alert("患者データの読み込みに失敗しました: " + error.message);
+      if (printLink) printLink.style.display = 'none';
+      if (prescriptionPrintLink) prescriptionPrintLink.style.display = 'none';
     });
-  } else {
+  } else { // 新規登録モード (idなし)
     if (printLink) {
         printLink.style.display = 'none';
+    }
+    if (prescriptionPrintLink) {
+        prescriptionPrintLink.style.display = 'none';
     }
   }
 
@@ -223,7 +240,7 @@ document.addEventListener("DOMContentLoaded", () => {
       備考: form.querySelector('[name="備考"]')?.value || ""
     };
 
-    fetch(API_ENDPOINT, { // Use the updated endpoint
+    fetch(API_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -239,6 +256,8 @@ document.addEventListener("DOMContentLoaded", () => {
     .then(data => {
       if (data.result === "saved") {
         alert("保存しました");
+        // 保存後、新しいIDで再度ページを読み込むか、一覧に戻る
+        // ここでは一覧に戻るようにしています
         location.href = "list.html";
       } else {
         throw new Error(data.error || "保存レスポンスが不正です");
