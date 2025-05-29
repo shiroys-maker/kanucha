@@ -96,7 +96,7 @@
       word-break: break-word; /* Ensure long text wraps */
       display: block; /* Ensure it behaves like a block */
     }
-    
+
     .field-label { /* For inline labels within cell-content if needed */
         font-weight: bold;
     }
@@ -134,9 +134,22 @@
         box-shadow: none; /* Remove shadow for printing */
         height: auto; /* Allow content to define height */
       }
+
+      /* 印刷時に不要なタグを非表示にする */
+      #record > div:first-child > div:nth-child(1) { /* '/* Content wrapper for flex column */' */
+        display: none !important;
+      }
+      #record > div:first-child > table + div > div:last-child > div:first-child { /* '/*' Break line for better readability '*/' */
+        display: none !important;
+      }
+      #record > div:last-child { /* '/* End Content wrapper */' */
+        display: none !important;
+      }
+      .header + .right-align + table + div > div:first-child > div:nth-child(2) > div:nth-child(2) > br { /* The <br/> tag within バイタル */
+        display: none !important;
+      }
     }
   </style>
-<script>
 // This function is defined but the age is primarily expected to come from patient.年齢
 function calcAge(dob) {
   if (!dob) return "";
