@@ -29,6 +29,7 @@
       border-radius: 6px;
       border: 1px solid #ccc;
       font-size: 16px;
+      box-sizing: border-box; /* パディングとボーダーを幅に含める */
     }
     button {
       width: 100%;
@@ -40,6 +41,27 @@
       font-size: 16px;
       cursor: pointer;
     }
+    /* --- ここから追加 --- */
+    .password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .password-wrapper input {
+      padding-right: 40px; /* アイコンのスペースを確保 */
+    }
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      user-select: none; /* アイコンのテキスト選択を防ぐ */
+      /* アイコンのスタイル（例） */
+      font-size: 18px;
+      color: #777;
+    }
+    /* --- ここまで追加 --- */
   </style>
 </head>
 <body>
@@ -47,7 +69,10 @@
     <h2>ログイン</h2>
     <form id="login-form">
       <input type="text" id="login-id" placeholder="ID" required autocomplete="username" />
-      <input type="password" id="login-password" placeholder="パスワード" required autocomplete="current-password" />
+      <div class="password-wrapper">
+        <input type="password" id="login-password" placeholder="パスワード" required autocomplete="current-password" />
+        <span class="toggle-password" id="togglePassword">👁️</span> {/* アイコンの例 (絵文字) */}
+      </div>
       <button type="submit">ログイン</button>
     </form>
   </div>
@@ -57,16 +82,32 @@
       e.preventDefault();
       const id = document.getElementById("login-id").value.trim();
       const pw = document.getElementById("login-password").value.trim();
-      if (id === "kanucha" && pw === "nirai43929") {
-        localStorage.setItem("auth", "nirai43929");
+      if (id === "kanucha" && pw === "nirai43929") { //
+        localStorage.setItem("auth", "nirai43929"); //
         // Set expiration for 10 minutes (600000 ms)
-        const expire = new Date().getTime() + 10 * 60 * 1000;
-        localStorage.setItem("auth_expire", expire.toString());
-        window.location.href = "list.html";
+        const expire = new Date().getTime() + 10 * 60 * 1000; //
+        localStorage.setItem("auth_expire", expire.toString()); //
+        //  localStorage.setItem("auth_expire", expire); // In the second file, expire is not converted to string
+        window.location.href = "list.html"; //
       } else {
-        alert("IDまたはパスワードが正しくありません");
+        alert("IDまたはパスワードが正しくありません"); //
       }
     });
+
+    // --- ここから追加 ---
+    const passwordInput = document.getElementById("login-password");
+    const togglePasswordButton = document.getElementById("togglePassword");
+
+    if (togglePasswordButton && passwordInput) {
+      togglePasswordButton.addEventListener("click", function () {
+        // パスワードの表示/非表示を切り替える
+        const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+        passwordInput.setAttribute("type", type);
+        // アイコンの表示を切り替える (例: 👁️ と 🙈)
+        this.textContent = type === "password" ? "👁️" : "🙈";
+      });
+    }
+    // --- ここまで追加 ---
   </script>
 </body>
 </html>
