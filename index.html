@@ -59,15 +59,14 @@
     margin-bottom: 12px;
   }
   .short-input { width: 100px; }
-  textarea { width: 100%; } /* Default width for textareas */
-  .normal-height { height: auto; } /* Allow natural height based on rows or content */
+  textarea { width: 100%; }
+  .normal-height { height: auto; }
   .double-height { height: 120px; }
 </style>
 </head>
 <body>
 
 <script>
-  // Authentication check at the beginning
   function isAuthenticated() {
     const auth = localStorage.getItem("auth");
     const expires = parseInt(localStorage.getItem("auth_expire") || "0", 10);
@@ -102,11 +101,11 @@
 <div>来院の目的 (看護師入力): <textarea class="double-height" name="来院の目的"></textarea></div>
 <div>既往歴: <textarea class="normal-height" name="既往歴" rows="4"></textarea></div>
 <div>内服薬: <textarea class="normal-height" name="内服薬" rows="4"></textarea></div>
-<div>アレルギー: <textarea class="normal-height" name="アレルギー" rows="3"></textarea></div> {/* This comment was removed from the next line if present in actual code */}
+<div>アレルギー: <textarea class="normal-height" name="アレルギー" rows="3"></textarea></div>
 <div>診察所見 (医師入力): <textarea class="double-height" name="診察所見"></textarea></div>
-<div>診断名: <textarea class="normal-height" name="診断名" rows="3"></textarea></div> {/* This comment was removed from the next line if present in actual code */}
+<div>診断名: <textarea class="normal-height" name="診断名" rows="3"></textarea></div>
 <div>投薬内容: <textarea class="double-height" name="投薬内容"></textarea></div>
-<div>備考: <textarea class="normal-height" name="備考" rows="3"></textarea></div> {/* This comment was removed from the next line if present in actual code */}
+<div>備考: <textarea class="normal-height" name="備考" rows="3"></textarea></div>
 <div class="row">
 <button type="submit">更新</button>
 <button onclick="location.href='list.html'" type="button">一覧に戻る</button>
@@ -116,7 +115,6 @@
 </div>
 
 <script>
-// Consolidated script block
 function calcAge(dob) {
   if (!dob) return "";
   const birth = new Date(dob);

@@ -11,14 +11,14 @@
     }
 
     .record-container {
-      width: 794px; /* A4 width approximation */
-      min-height: 1000px; /* A4 height approximation, adjust as needed */
+      width: 794px;
+      min-height: 1000px;
       margin: auto;
-      padding: 40px; /* Standard A4 margins ~2cm */
+      padding: 40px;
       border: 3px solid #000;
       background: #fff;
       box-sizing: border-box;
-      overflow: hidden; /* Content should ideally not overflow */
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -50,9 +50,9 @@
       border: 1px solid #000;
       padding: 6px 10px;
       font-size: 14px;
-      word-break: break-word; /* Ensure long text wraps */
+      word-break: break-word;
     }
-    .info-table td:nth-child(odd) { /* Labels in bold */
+    .info-table td:nth-child(odd) {
         font-weight: bold;
     }
 
@@ -65,39 +65,39 @@
 
     .label {
       font-weight: bold;
-      display: block; /* Changed to block for better layout */
+      display: block;
       font-size: 15px;
       border-bottom: 1px solid #000;
       margin-bottom: 6px;
-      padding-bottom: 2px; /* Added padding */
+      padding-bottom: 2px;
     }
 
     .split-section {
       display: flex;
-      gap: 10px; /* Space between split sections */
+      gap: 10px;
     }
 
     .split-half {
       flex: 1;
-      min-width: 0; /* Allow shrinking */
+      min-width: 0;
     }
 
     .split-larger {
       flex: 1.2;
-      min-width: 0; /* Allow shrinking */
+      min-width: 0;
     }
 
     .cell-content {
       min-height: 48px;
       font-size: 14px;
       line-height: 1.4;
-      padding: 4px 0; /* Added padding */
-      white-space: pre-wrap; /* Preserve whitespace and wrap */
-      word-break: break-word; /* Ensure long text wraps */
-      display: block; /* Ensure it behaves like a block */
+      padding: 4px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+      display: block;
     }
 
-    .field-label { /* For inline labels within cell-content if needed */
+    .field-label {
         font-weight: bold;
     }
 
@@ -107,7 +107,7 @@
       font-size: 15px;
       border-top: 1px solid #000;
       padding-top: 10px;
-      margin-top: auto; /* Push footer to the bottom */
+      margin-top: auto;
     }
 
     .buttons {
@@ -127,17 +127,16 @@
       }
 
       .record-container {
-        transform: scale(1); /* Adjust scale for printing if necessary, e.g. 0.97 */
+        transform: scale(1);
         transform-origin: top center;
-        margin: 0 auto; /* Center on page */
-        border: none; /* Remove border for printing */
-        box-shadow: none; /* Remove shadow for printing */
-        height: auto; /* Allow content to define height */
+        margin: 0 auto;
+        border: none;
+        box-shadow: none;
+        height: auto;
       }
     }
   </style>
 <script>
-// This function is defined but the age is primarily expected to come from patient.年齢
 function calcAge(dob) {
   if (!dob) return "";
   const birth = new Date(dob);
@@ -155,7 +154,7 @@ function calcAge(dob) {
 <button id="closeBtn">閉じる</button>
 </div>
 <div class="record-container" id="record">
-  <div> {/* This div used to have an invalid comment, now removed */}
+  <div>
     <div class="header">診療記録</div>
     <div class="right-align">受診日: <span id="受診日"></span></div>
     <table class="info-table">
@@ -183,7 +182,7 @@ function calcAge(dob) {
     <div><span class="field-label">バイタル:</span>
     <div class="cell-content">
                   血圧: <span id="血圧"></span>　
-                  脈: <span id="脈"></span><br/> {/* This br tag is kept, the invalid comment after it is removed */}
+                  脈: <span id="脈"></span><br/>
                   体温: <span id="体温"></span>　
                   SAT: <span id="SAT"></span>
     </div>
@@ -203,7 +202,7 @@ function calcAge(dob) {
     <div class="cell-content" id="備考"></div>
     </div>
     </div>
-  </div> {/* This closing div used to have an invalid comment, now removed */}
+  </div>
   <div class="footer">
           Kanucha KIN Clinic／沖縄県名護市安部１５６−２<br/>
           医師：廣安 俊吾
