@@ -6,40 +6,47 @@
     <title>処方せん</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
-        @media print { /* Tailwind CSS の no-print が効かない場合があるので、念のため */
+        @media print {
             .print-button-container { display: none !important; }
             body { margin: 0; padding: 0; }
-            .max-w-4xl { max-width: none; } /* 印刷時は幅制限を解除 */
+            .max-w-4xl { max-width: none; }
             .mx-auto { margin-left: 0; margin-right: 0; }
-            .p-4 { padding: 0; } /* ページ全体のパディングを解除する場合 */
-            .border-2 { border-width: 1px; } /* 印刷時のボーダー調整 */
+            .p-4 { padding: 0; }
+            .border-2 { border-width: 1px; }
         }
         .form-table { border-collapse: collapse; width: 100%; }
         .form-table td, .form-table th { border: 1px solid black; padding: 2px 4px; }
         .small-text { font-size: 10px; }
         .tiny-text { font-size: 8px; }
-        .large-patient-text { font-size: 18px; font-weight: bold; }
+        /* .large-patient-text はTailwindで代替 */
         input[type="text"], input[type="number"], textarea, select {
-            border: none; /* データ表示時は枠線なしが望ましい */
+            border: none;
             background: transparent;
             width: 100%;
-            padding: 1px; /* 少しパディングを確保 */
+            padding: 1px;
             outline: none;
-            color: black; /* 文字色を明示 */
+            color: black;
         }
-        textarea { resize: none; }
+        textarea {
+            resize: none;
+            overflow-y: hidden; /* autoResizeTextareaで高さを調整するため、初期はhidden */
+        }
         .grid-cell { border: 1px solid black; }
-        .vertical-text {
+        .vertical-text-patient { /* 「患者」の縦書き専用 */
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            line-height: 1.2; /* 文字の詰まり具合を調整 */
+        }
+        .vertical-text-label { /* 「処方」「備考」の縦書きラベル用 */
             writing-mode: vertical-rl;
             text-orientation: upright;
         }
-        /* JavaScriptで値を設定する要素用のスタイル（任意） */
         .data-field {
-            min-height: 1em; /* 値が空でも高さを確保 */
+            min-height: 1em;
         }
     </style>
 </head>
-<body class="bg-gray-200 p-4 font-mono"> 
+<body class="bg-gray-200 p-4 font-mono">
 
     <div class="print-button-container text-center my-4">
         <button onclick="window.print()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
@@ -80,7 +87,7 @@
 
         <table class="form-table mb-4">
             <tr>
-                <td rowspan="3" class="large-patient-text bg-gray-100 w-16 text-center vertical-text leading-none"><div>患<br/>者</div></td>
+                <td rowspan="3" class="bg-gray-100 w-16 text-center vertical-text-patient text-xl font-bold">患<br/>者</td>
                 <td class="small-text bg-gray-100 w-16">氏名</td>
                 <td class="w-auto"><input type="text" id="patientName" class="font-bold text-lg" readonly /></td>
                 <td class="tiny-text bg-gray-100 w-32">保険医療機関の<br/>所在地及び名称</td>
@@ -138,28 +145,27 @@
             <tr>
                 <td class="small-text bg-gray-100">保険医コード</td>
                 <td colspan="5" class="small-text">（　　　　　　　　　　）</td>
-
             </tr>
         </table>
 
-        <div class="border-2 border-black mb-4" style="min-height: 50mm; height: auto;"> 
-            <div class="h-full flex">
+        <div class="border-2 border-black mb-4" style="height: auto;"> 
+            <div class="flex"> 
                 <div class="w-16 bg-gray-100 border-r-2 border-black flex items-center justify-center">
-                    <div class="vertical-text text-xl font-bold tracking-widest">処方</div>
+                    <div class="vertical-text-label text-xl font-bold tracking-widest py-2">処方</div>
                 </div>
                 <div class="flex-1 p-2">
-                    <textarea id="prescriptionContent" class="w-full h-full resize-none text-sm leading-relaxed" readonly></textarea>
+                    <textarea id="prescriptionContent" class="w-full resize-none text-sm leading-relaxed" readonly></textarea>
                 </div>
             </div>
         </div>
 
-        <div class="border-2 border-black mb-4" style="min-height: 30mm; height: auto;"> 
-            <div class="h-full flex">
+        <div class="border-2 border-black mb-4" style="height: auto;">
+            <div class="flex"> 
                 <div class="w-16 bg-gray-100 border-r-2 border-black flex items-center justify-center">
-                    <div class="vertical-text text-xl font-bold tracking-widest">備考</div>
+                    <div class="vertical-text-label text-xl font-bold tracking-widest py-2">備考</div>
                 </div>
                 <div class="flex-1 p-2 relative">
-                    <textarea id="remarksContent" class="w-full h-full resize-none text-sm" readonly></textarea>
+                    <textarea id="remarksContent" class="w-full resize-none text-sm" readonly></textarea>
                     <div class="absolute bottom-2 right-2 tiny-text">
                         後発医薬品（ジェネリック医薬品）への変更が<br/>
                         全て不可の場合は、以下に署名又は記名・押印<br/><br/>
@@ -195,7 +201,6 @@
     </div>
 
 <script>
-  // API_ENDPOINTは新しいプロジェクトのものを設定 (実際の値に置き換えてください)
   const API_ENDPOINT = "https://us-central1-kanucha-firestore-test.cloudfunctions.net/kanuchaapifirestorenew";
 
   function isAuthenticated() {
@@ -204,12 +209,10 @@
     return auth === "nirai43929" && Date.now() < expires;
   }
 
-  // 和暦変換と日付のパーツ分解を行う関数
   function getFormattedDateParts(dateString) {
     if (!dateString) return { era: '', year: '', month: '', day: '' };
     const date = new Date(dateString);
     let era = '', year = date.getFullYear().toString(), month = (date.getMonth() + 1).toString(), day = date.getDate().toString();
-
     try {
         const formatter = new Intl.DateTimeFormat('ja-JP-u-ca-japanese', { era: 'short', year: 'numeric' });
         const parts = formatter.formatToParts(date);
@@ -235,30 +238,31 @@
     return age.toString();
   }
 
+  function autoResizeTextarea(element) {
+    element.style.height = 'auto';
+    const originalOverflow = element.style.overflowY; // 元のoverflow-yを保存
+    element.style.overflowY = 'hidden'; // 計算中はスクロールバーを隠す
+    element.style.height = (element.scrollHeight) + 'px';
+    element.style.overflowY = originalOverflow; // 元のoverflow-yに戻す
+  }
 
   document.addEventListener("DOMContentLoaded", () => {
     if (!isAuthenticated()) {
       alert("認証されていません。ログインしてください。");
-      // window.location.href = "login.html"; // 必要に応じて
       return;
     }
 
     const params = new URLSearchParams(window.location.search);
     const patientId = params.get("id");
 
-    // 固定値の設定
-    document.getElementById("hospitalNameAddress").value = "沖縄県名護市安部１５６−２ Kanucha KIN Clinic\n電話番号: 0980-55-8880"; // 電話番号もこちらに統合
+    document.getElementById("hospitalNameAddress").value = "沖縄県名護市安部１５６−２ Kanucha KIN Clinic\n電話番号: 0980-55-8880";
     document.getElementById("doctorName").innerText = "廣安 俊吾";
 
-    // 公費や保険者番号などのダミー値（実際にはFirestoreから取得または別途設定）
-    // これらは入力不可にするため readonly 属性を input に付与
-    document.getElementById("kouhiFutanshaNo1").value = ""; // 例: (12)
-    document.getElementById("kouhiFutanshaNo2").value = ""; // 例: (345678)
-    document.getElementById("kouhiJukyushaNo").value = ""; // 例: (1234567)
-    document.getElementById("hokenjaNo1").value = ""; // 例: (123456)
-    // ... 他の保険情報フィールドも同様に設定 ...
-    document.getElementById("hihokenshaKigoBango").value = ""; // 例: (あいうえお・123)
-
+    document.getElementById("kouhiFutanshaNo1").value = "";
+    document.getElementById("kouhiFutanshaNo2").value = "";
+    document.getElementById("kouhiJukyushaNo").value = "";
+    document.getElementById("hokenjaNo1").value = "";
+    document.getElementById("hihokenshaKigoBango").value = "";
 
     if (patientId) {
       fetch(API_ENDPOINT, {
@@ -278,9 +282,8 @@
         console.log("取得データ (Firestore):", patient);
         if (patient.error) throw new Error(patient.error);
 
-        // 患者情報の代入
         document.getElementById("patientName").value = patient.名前 || '';
-        document.getElementById("patientSex").innerText = patient.性別 || ''; // spanなのでinnerText
+        document.getElementById("patientSex").innerText = patient.性別 || '';
 
         const dobParts = getFormattedDateParts(patient.生年月日);
         document.getElementById("patientDobEra").innerText = dobParts.era;
@@ -289,15 +292,12 @@
         document.getElementById("patientDobDay").innerText = dobParts.day;
         document.getElementById("patientAge").innerText = calcAge(patient.生年月日);
 
-
-        // 交付年月日 (本日の日付)
         const todayParts = getFormattedDateParts(new Date().toISOString().split("T")[0]);
         document.getElementById("issueDateEra").innerText = todayParts.era;
         document.getElementById("issueDateYear").innerText = todayParts.year;
         document.getElementById("issueDateMonth").innerText = todayParts.month;
         document.getElementById("issueDateDay").innerText = todayParts.day;
 
-        // 使用期間 (交付日から3日後 = 4日間有効)
         const expiry = new Date();
         expiry.setDate(expiry.getDate() + 3);
         const expiryParts = getFormattedDateParts(expiry.toISOString().split("T")[0]);
@@ -306,24 +306,23 @@
         document.getElementById("expiryDateMonth").innerText = expiryParts.month;
         document.getElementById("expiryDateDay").innerText = expiryParts.day;
 
-
-        // 処方内容 (index.htmlの「投薬内容」フィールドから取得)
         let formattedPrescription = "";
         if (patient.投薬内容) {
-            const lines = patient.投薬内容.split(/\n|\\n/); // 実際の改行 (\n) またはエスケープされた改行 (\\n) に対応
+            const lines = patient.投薬内容.split(/\n|\\n/);
             lines.forEach((line, index) => {
                 if (line.trim() !== "") {
-                    const indent = index > 0 ? "　" : ""; // 全角スペースでインデント
+                    const indent = index > 0 ? "　" : "";
                     formattedPrescription += `${indent}${index + 1}. ${line.trim()}\n`;
                 }
             });
         }
-        document.getElementById("prescriptionContent").value = formattedPrescription.trim() || '記載なし';
+        const prescriptionTextarea = document.getElementById("prescriptionContent");
+        prescriptionTextarea.value = formattedPrescription.trim() || '記載なし';
+        autoResizeTextarea(prescriptionTextarea);
 
-        // 備考欄 (index.htmlの「備考」フィールドから取得)
-        document.getElementById("remarksContent").value = patient.備考 || '';
-
-
+        const remarksTextarea = document.getElementById("remarksContent");
+        remarksTextarea.value = patient.備考 || '';
+        autoResizeTextarea(remarksTextarea);
       })
       .catch(error => {
           console.error("患者データの読み込みに失敗しました:", error);
