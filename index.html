@@ -66,7 +66,14 @@
 </style>
 </head>
 <body>
-
+<script>
+    if (
+      location.pathname === "/" ||
+      location.pathname === "/kanucha/" 
+          ) {
+      window.location.href = "login.html";
+    }
+  </script>
 <script>
   // API_ENDPOINT は新しいプロジェクトのものを設定済みとします
   const API_ENDPOINT = "https://us-central1-kanucha-firestore-test.cloudfunctions.net/kanuchaapifirestorenew";
